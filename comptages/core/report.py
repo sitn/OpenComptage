@@ -11,9 +11,8 @@ from comptages.core import statistics
 from comptages.datamodel import models
 
 
-def simple_print_callback(progress: int):
-    if progress > 0:
-        print(f"Generating report... {progress}%")
+def simple_print_callback(progress):
+    print(f"{datetime.now()}: Generating report... {progress}%")
 
 
 def prepare_reports(
@@ -23,6 +22,7 @@ def prepare_reports(
     template="default",
     sections_ids: Optional[list[str]] = None,
     callback_progress=simple_print_callback,
+    sections_days: Optional[dict[str, list[date]]] = None,
 ):
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -30,14 +30,14 @@ def prepare_reports(
         template_name = "template.xlsx"
         template_path = os.path.join(current_dir, os.pardir, "report", template_name)
         assert count
-        _prepare_default_reports(file_path, count, template_path, callback_progress)
+        _prepare_default_reports(file_path, count, template_path, callback_progress, sections_days)
     elif template == "yearly":
         template_name = "template_yearly.xlsx"
         template_path = os.path.join(current_dir, os.pardir, "report", template_name)
         assert year
         assert sections_ids
         _prepare_yearly_report(
-            file_path, year, template_path, sections_ids, callback_progress
+            file_path, year, template_path, sections_ids, callback_progress, sections_days
         )
     elif template == "yearly_bike":
         pass
@@ -56,18 +56,27 @@ def _prepare_default_reports(
         lane__id_installation__count=count
     ).distinct()
     assert sections
+    sections_qty = len(list(sections))
 
-    mondays_qty = len(list(_mondays_of_count(count)))
-    mondays = _mondays_of_count(count)
+    mondays = list(_mondays_of_count(count))
     assert mondays
+    mondays_qty = len(mondays)
 
-    for section in sections:
+    for j, section in enumerate(sections):
         for i, monday in enumerate(mondays):
             # Filter out date based on parameter
             if sections_days and monday not in sections_days[section.id]:
                 continue
-            QgsMessageLog.logMessage("Adding to workbook", "Report", Qgis.Info)
-            progress = int(100 / mondays_qty * (i - 1))
+            output = os.path.join(
+                file_path, f"{section.id}_{monday.strftime('%Y%m%d')}_r.xlsx"
+            )
+            workbook_nbr = i + j * mondays_qty
+            QgsMessageLog.logMessage(
+                f"{datetime.now()} - Preparing reports: Adding workbook {workbook_nbr} ({output})",
+                "Comptages",
+                Qgis.Info
+            )
+            progress = int(100 / mondays_qty / sections_qty * workbook_nbr)
             callback_progress(progress)
 
             workbook = load_workbook(filename=template_path)
@@ -76,9 +85,6 @@ def _prepare_default_reports(
             _data_speed(count, section, monday, workbook)
             _data_category(count, section, monday, workbook)
             _remove_useless_sheets(count, workbook)
-            output = os.path.join(
-                file_path, "{}_{}_r.xlsx".format(section.id, monday.strftime("%Y%m%d"))
-            )
 
             workbook.save(filename=output)
 
@@ -89,13 +95,17 @@ def _prepare_yearly_report(
     template_path: str,
     sections_ids: list[str],
     callback_progress,
+    sections_days: Optional[dict[str, list[date]]] = None,
 ):
     """Write default reports to disk (1 per section included in the count)"""
     # Get first count to be used as example
     count_qs = models.Count.objects.filter(
-        id_installation__lane__id_section=sections_ids[0], start_process_date__year=year
+        id_installation__lane__id_section=sections_ids[0], start_process_date__year__lte=year, end_process_date__year__gte=year
     )
     if not count_qs.exists():
+        info_str = f"{datetime.now()}: Aucun comptage trouvé pour cette section {sections_ids[0]} et cette année {year}"
+        QgsMessageLog.logMessage(info_str, "Comptages", Qgis.Warning)
+
         return
     count = count_qs.first()
     assert count
@@ -231,20 +241,6 @@ def _data_count_yearly(
 def _data_day(count: models.Count, section: models.Section, monday, workbook: Workbook):
     ws = workbook["Data_day"]
 
-    # Total
-    row_offset = 65
-    col_offset = 2
-    for i in range(7):
-        df = statistics.get_time_data(
-            count,
-            section,
-            start=monday + timedelta(days=i),
-            end=monday + timedelta(days=i + 1),
-        )
-
-        for row in df.itertuples():
-            ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
-
     # Monthly coefficients
     row_offset = 2
     col_offset = 2
@@ -270,6 +266,20 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
             column=col_offset + i,
             value=monthly_coefficients[day.month - 1],
         )
+
+    # Total (section)
+    row_offset = 67
+    col_offset = 2
+    for i in range(7):
+        df = statistics.get_time_data(
+            count,
+            section,
+            start=monday + timedelta(days=i),
+            end=monday + timedelta(days=i + 1),
+        )
+
+        for row in df.itertuples():
+            ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
 
     # Direction 1
     row_offset = 5
@@ -302,7 +312,7 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
 
     # Direction 2
     if len(section.lane_set.all()) == 2:
-        row_offset = 35
+        row_offset = 36
         col_offset = 2
         for i in range(7):
             df = statistics.get_time_data(
@@ -317,7 +327,7 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
                 ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
 
         # Light heavy direction 2
-        row_offset = 60
+        row_offset = 61
         col_offset = 2
         for i in range(7):
             light = statistics.get_light_numbers(
@@ -345,6 +355,7 @@ def _data_day_yearly(
     df = statistics.get_time_data_yearly(year, section)
 
     if df is None:
+        print(f"{datetime.now()}:_data_day_yearly - Pas de données pour cette section {section} et cette année {year} /!\\/!\\/!\\")
         return
 
     for i in range(7):
@@ -353,7 +364,7 @@ def _data_day_yearly(
             ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
 
     # Light heavy section
-    row_offset = 96
+    row_offset = 95
     col_offset = 2
     df = statistics.get_light_numbers_yearly(
         section, start=datetime(year, 1, 1), end=datetime(year + 1, 1, 1)
@@ -386,7 +397,7 @@ def _data_day_yearly(
             ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
 
     # Light heavy direction 1
-    row_offset = 32
+    row_offset = 31
     col_offset = 2
     df = statistics.get_light_numbers_yearly(
         section, start=datetime(year, 1, 1), end=datetime(year + 1, 1, 1), direction=1
@@ -406,7 +417,7 @@ def _data_day_yearly(
 
     # Direction 2
     if len(section.lane_set.all()) == 2:
-        row_offset = 66
+        row_offset = 37
         col_offset = 2
 
         df = statistics.get_time_data_yearly(year, section, direction=2)
@@ -417,7 +428,7 @@ def _data_day_yearly(
                 ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
 
         # Light heavy direction 2
-        row_offset = 92
+        row_offset = 63
         col_offset = 2
         df = statistics.get_light_numbers_yearly(
             section,

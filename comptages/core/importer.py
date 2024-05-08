@@ -1,6 +1,6 @@
 from typing import Callable, Iterator, Optional
-import pytz
-import os
+from pytz import timezone
+from os import path
 from datetime import datetime, timedelta
 from django.db.models import Q
 
@@ -8,6 +8,7 @@ from comptages.core import definitions
 from comptages.datamodel import models
 from comptages.core.bulk_create_manager import BulkCreateManager
 
+TZ = timezone("Europe/Zurich")
 
 def simple_print_callback(progress: int):
     if progress % 10 == 0:
@@ -51,7 +52,7 @@ def _parse_and_write(
     from_aggregate: bool = False,
     **kwargs,
 ):
-    basename = os.path.basename(file_path)
+    basename = path.basename(file_path)
     bulk_mgr = BulkCreateManager(chunk_size=1000)
     lanes = _populate_lane_dict(count)
     directions = _populate_direction_dict(count)
@@ -112,10 +113,9 @@ def _parse_line_vbv1(line: str, **kwargs) -> Optional[list[dict]]:
         return None
 
     parsed_line = {}
-    tz = pytz.timezone("Europe/Zurich")
     try:
         parsed_line["numbering"] = line[0:6]
-        parsed_line["timestamp"] = tz.localize(
+        parsed_line["timestamp"] = TZ.localize(
             datetime.strptime("{}0000".format(line[7:24]), "%d%m%y %H%M %S %f")
         )
         parsed_line["reserve_code"] = line[25:31]
@@ -162,11 +162,10 @@ def _parse_line_mc(line: str, **kwargs) -> Optional[list[dict]]:
 
     parsed_line = {}
     try:
-        tz = pytz.timezone("Europe/Zurich")
         # TODO: numbering
         numbering = 1
         parsed_line["numbering"] = numbering
-        parsed_line["timestamp"] = tz.localize(
+        parsed_line["timestamp"] = TZ.localize(
             datetime.strptime(line[0:19], "%Y-%m-%d %H:%M:%S")
         )
         # On MetroCount files, the direction is 0-1 instead of 1-2
@@ -198,7 +197,6 @@ def _parse_line_int2(line, **kwargs) -> Iterator[Optional[dict]]:
         return None
 
     parsed_line = {}
-    tz = pytz.timezone("Europe/Zurich")
     # TODO: numbering
     numbering = 1
     parsed_line["numbering"] = numbering
@@ -206,10 +204,10 @@ def _parse_line_int2(line, **kwargs) -> Iterator[Optional[dict]]:
     # instead of 0000 of the next day
     if line[7:9] == "24":
         line = line[:7] + "00" + line[9:]
-        end = tz.localize(datetime.strptime("{}".format(line[0:11]), "%d%m%y %H%M"))
+        end = TZ.localize(datetime.strptime("{}".format(line[0:11]), "%d%m%y %H%M"))
         end += timedelta(days=1)
     else:
-        end = tz.localize(datetime.strptime("{}".format(line[0:11]), "%d%m%y %H%M"))
+        end = TZ.localize(datetime.strptime("{}".format(line[0:11]), "%d%m%y %H%M"))
 
     parsed_line["end"] = end
     parsed_line["start"] = parsed_line["end"] - timedelta(minutes=kwargs["interval"])
@@ -294,7 +292,6 @@ def _get_int_bins(
 
 def _parse_file_header(file_path: str):
     file_header = dict()
-    tz = pytz.timezone("Europe/Zurich")
 
     with open(file_path, encoding=get_file_encoding(file_path)) as f:
         for line in f:
@@ -308,12 +305,12 @@ def _parse_file_header(file_path: str):
                     if key == "CLASS" and value == "SPECIAL10":
                         value = "SWISS10"
                     if key in ["STARTREC", "STOPREC"]:
-                        value = tz.localize(datetime.strptime(value, "%H:%M %d/%m/%y"))
+                        value = TZ.localize(datetime.strptime(value, "%H:%M %d/%m/%y"))
                     file_header[key] = value
             # MetroCount
             elif line.startswith("MetroCount"):
                 file_header["FORMAT"] = "MC"
-            elif line.startswith("Place"):
+            elif line.startswith("Place") and "SITE" not in file_header:
                 file_header["SITE"] = line[line.find("[") + 1 : line.find("]")].replace(
                     "-", ""
                 )
@@ -322,11 +319,11 @@ def _parse_file_header(file_path: str):
                 and file_header["FORMAT"] == "MC"
                 and "STARTREC" not in file_header
             ):
-                file_header["STARTREC"] = tz.localize(
+                file_header["STARTREC"] = TZ.localize(
                     datetime.strptime(line[:19], "%Y-%m-%d %H:%M:%S")
                 )
             elif line.startswith("20") and file_header["FORMAT"] == "MC":
-                file_header["STOPREC"] = tz.localize(
+                file_header["STOPREC"] = TZ.localize(
                     datetime.strptime(line[:19], "%Y-%m-%d %H:%M:%S")
                 )
             elif line.startswith("Type de Cat") and file_header["FORMAT"] == "MC":
@@ -337,8 +334,8 @@ def _parse_file_header(file_path: str):
                     file_header["CLASS"] = "NZ13"
                 elif file_header["CLASS"][:5] == "FHWA ":
                     file_header["CLASS"] = "FHWA13"
-                elif file_header["CLASS"] == "CAT-Cycle_dist-empat":
-                    file_header["CLASS"] = "SPCH-MD 5C"
+                elif file_header["CLASS"] in ("CAT-Cycle_dist-empat", "SPCH-MD5C", "SPCH-MD 5C"):
+                    file_header["CLASS"] = "SPCH-MD_5C"
 
     return file_header
 
