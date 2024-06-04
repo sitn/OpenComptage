@@ -5,21 +5,24 @@ from typing import Any, Iterable, Optional, Union
 from decimal import Decimal
 from qgis.core import Qgis, QgsMessageLog
 
-from django.db.models import Sum, F, Avg #, Count, ExpressionWrapper
-#from django.db.models.fields import DateField, IntegerField
+from openpyxl import load_workbook
+from django.db.models import Sum, F, Avg
 from django.db.models.functions import (
-#    Cast,
     ExtractHour,
     ExtractIsoWeekDay,
     ExtractMonth,
     TruncDate,
 )
 
-from openpyxl import load_workbook
-
-from comptages.core import definitions, utils #, statistics
-from comptages.datamodel.models import CountDetail, Section, Lane, ClassCategory, Category
-from comptages.datamodel.models import Count as modelCount
+from comptages.core import definitions, utils
+from comptages.datamodel.models import (
+    CountDetail,
+    Section,
+    Lane,
+    ClassCategory,
+    Category,
+    Count as modelCount,
+)
 
 
 class YearlyReportBike:
@@ -74,8 +77,7 @@ class YearlyReportBike:
         )
         print(f"yearly_report_bike.py: tjms_by_weekday_category - results.query:{str(results.query)}")
         return results
-        
-        
+
     def tjms_by_weekday_hour(self) -> "ValuesQuerySet[CountDetail, dict[str, Any]]":
         # Get all the count details for section and the year
         # Doesn't produce correct results because of 2 aggregation
@@ -171,7 +173,7 @@ class YearlyReportBike:
 
             if hour not in acc[day]:
                 acc[day][hour] = {}
-                
+
             acc[day][hour] = val["runs"]
             return acc
 
@@ -229,7 +231,6 @@ class YearlyReportBike:
         for item in results:
             if item["month"] not in builder:
                 builder[item["month"]] = {"month": item["month"]}
-                #print(f"yearly_report_bike.py : tjms_by_weekday_and_month - builder_month:{builder}")
                 builder[item["month"]][item["week_day"]] = {
                     "days": 1,
                     "runs": item["daily_runs"],
@@ -250,7 +251,7 @@ class YearlyReportBike:
                     builder[item["month"]][item["week_day"]]["runs"]
                     / builder[item["month"]][item["week_day"]]["days"]
                 )
-        
+
         return builder
 
     def runs_by_weekday_and_month(self) -> "ValuesQuerySet[CountDetail, dict[str, Any]]":
@@ -263,14 +264,14 @@ class YearlyReportBike:
 
         # Group by month, week_day
         results = (
-            qs.annotate(month=ExtractMonth("timestamp"), 
-                week_day=ExtractIsoWeekDay("timestamp"))
+            qs.annotate(month=ExtractMonth("timestamp"),
+                        week_day=ExtractIsoWeekDay("timestamp"))
             .values("month", "week_day")
             .annotate(daily_runs=Sum("times"))
             .values("month", "week_day", "daily_runs")
         )
         print(f"yearly_report_bike.py : runs_by_weekday_and_month - results.query:{str(results.query)}")
-        
+
         return results
 
     def nb_weekday_by_month(self) -> "ValuesQuerySet[CountDetail, dict[str, Any]]":
@@ -287,14 +288,13 @@ class YearlyReportBike:
             .values("date")
             .annotate(daily_runs=Sum("times"))
             .values("date", "daily_runs")
-            .annotate(month=ExtractMonth("timestamp"), 
-                week_day=ExtractIsoWeekDay("timestamp")
-            )
+            .annotate(month=ExtractMonth("timestamp"),
+                      week_day=ExtractIsoWeekDay("timestamp"))
             .values("date", "month", "week_day")
-#            .order_by("date")
+            # .order_by("date")
         )
         print(f"yearly_report_bike.py : nb_weekday_by_month - results.query:{str(results.query)}")
-        
+
         def reducer(acc: dict, item) -> dict:
 
             if item["month"] not in acc:
@@ -324,10 +324,9 @@ class YearlyReportBike:
             .values("date")
             .annotate(daily_runs=Sum("times"))
             .values("date", "daily_runs")
-#            .order_by("date")
+            # .order_by("date")
         )
         print(f"yearly_report_bike.py : total_runs_by_day - results.query:{str(results.query)}")
-        #print(f"yearly_report_bike.py : total_runs_by_day - results:{results}")
 
         return results
 
@@ -346,7 +345,7 @@ class YearlyReportBike:
             .order_by("week_day")
         )
         print(f"yearly_report_bike.py : tjms_total_runs_by_day_of_week - results.query:{str(results.query)}")
-        #print(f"yearly_report_bike.py : tjms_total_runs_by_day_of_week - results.query:{results}")
+
         # FIXME
         # Aggregation via `values()` into `annotate()` all the way to the end result would be more performant.
         builder = {}
@@ -365,7 +364,7 @@ class YearlyReportBike:
                     builder[item["week_day"]]["runs"]
                     / builder[item["week_day"]]["days"]
                 )
-        
+
         return builder
 
     def total_runs_by_class(self) -> dict[str, Any]:
@@ -526,7 +525,7 @@ class YearlyReportBike:
 
         # Base QuerySet
         base_qs = CountDetail.objects.filter(
-            id_count=count.id, 
+            id_count=count.id,
             id_category__in=categories_ids,
             timestamp__year=self.year,
         )
@@ -549,7 +548,7 @@ class YearlyReportBike:
             .order_by("-value")
         )
         print(f"yearly_report_bike.py : count_details_by_various_criteria - busy_date.query:{str(busy_date.query)}")
-        
+
         busiest_date = busy_date.first()
         least_busy_date = busy_date.last()
         assert busiest_date
@@ -564,7 +563,7 @@ class YearlyReportBike:
             .annotate(value=Sum("times"))
         )
         print(f"yearly_report_bike.py : count_details_by_various_criteria - busiest_date_row.query:{str(busiest_date_row.query)}")
-        
+
         least_busy_date_row = (
             base_qs.annotate(
                 date=TruncDate("timestamp"), category_name=F("id_category__name")
@@ -616,7 +615,7 @@ class YearlyReportBike:
             .annotate(value=Sum("times"))
             .order_by("-value")
         )
-        
+
         total_runs_busiest_hour_weekday = busiest_hour.exclude(week_day__gt=5)
         total_runs_busiest_hour_weekend = busiest_hour.exclude(week_day__lt=6)
         print(f"yearly_report_bike.py : count_details_by_various_criteria - busiest_weekend_hour.query:{str(total_runs_busiest_hour_weekend.query)}")
@@ -661,7 +660,7 @@ class YearlyReportBike:
         # Getting data
         count_details = (
             CountDetail.objects.filter(
-                id_count=count_id, 
+                id_count=count_id,
                 id_category__in=categories_ids,
                 timestamp__year=self.year,
             )
@@ -681,7 +680,7 @@ class YearlyReportBike:
             month20 = (date - timedelta(days=20)).month
 
             for season, _range in self.seasons.items():
-                if month20 in _range :
+                if month20 in _range:
                     category_name = detail["category_name"]
 
                     if season not in acc:
@@ -789,10 +788,8 @@ class YearlyReportBike:
         section_start_dist = render_section_dist(section.start_dist)
         section_end_dist = render_section_dist(section.end_dist)
 
-        ws[
-            "B3"
-        ] = f"""
-            Poste de comptage : {section.id}  
+        ws["B3"] = f"""
+            Poste de comptage : {section.id}
             Axe : {section.owner}:{section.road}{section.way}
             PR {section.start_pr} + {section_start_dist} m à PR {section.end_pr} + {section_end_dist} m
         """
@@ -808,8 +805,8 @@ class YearlyReportBike:
         )
         if not count_detail.exists():
             QgsMessageLog.logMessage(
-                f"{datetime.now()} - Aucun conmptage pour cette année ({self.year}) et cette section ({self.section_id})", 
-                "Comptages", 
+                f"{datetime.now()} - Aucun conmptage pour cette année ({self.year}) et cette section ({self.section_id})",
+                "Comptages",
                 Qgis.Info
                 )
             return
@@ -864,8 +861,6 @@ class YearlyReportBike:
         print_area = ws["C5:D28"]
         data = self.total_runs_by_hour_and_direction(directions=(1, 2))
         for hour, row in enumerate(print_area, 0):
-            # if hour == 24:
-                # hour = 0
             for direction, cell in enumerate(row, 1):
                 if hour not in data or direction not in data[hour]:
                     cell.value = 0
@@ -876,8 +871,6 @@ class YearlyReportBike:
         print_area = ws["C37:D60"]
         data = self.total_runs_by_hour_and_direction(directions=(1, 2), weekdays=(6, 7))
         for hour, row in enumerate(print_area, 0):
-            # if hour == 24:
-                # hour = 0
             for direction, cell in enumerate(row, 1):
                 if hour not in data or direction not in data[hour]:
                     cell.value = 0
@@ -888,8 +881,6 @@ class YearlyReportBike:
         print_area = ws["B69:H92"]
         data = self.total_runs_by_hour_one_direction(1)
         for hour, row in enumerate(print_area, 0):
-            # if hour == 24:
-                # hour = 0
             for day, cell in enumerate(row, 1):
                 if day not in data or hour not in data[day]:
                     cell.value = 0
@@ -900,8 +891,6 @@ class YearlyReportBike:
         print_area = ws["B101:H124"]
         data = self.total_runs_by_hour_one_direction(2)
         for hour, row in enumerate(print_area, 0):
-            # if hour == 24:
-                # hour = 0
             for day, cell in enumerate(row, 1):
                 if day not in data or hour not in data[day]:
                     cell.value = 0
@@ -949,7 +938,7 @@ class YearlyReportBike:
             for i, season in enumerate(self.seasons):
                 if saison == season:
                     for j, cat in enumerate(column_names):
-                        if cat in data[saison] :
+                        if cat in data[saison]:
                             ws.cell(
                                 column=j + column_offset,
                                 row=i + row_offset,
@@ -1010,7 +999,7 @@ class YearlyReportBike:
             for row in res:
                 row_num = row_offset + category.code
                 col_num = col_offset + row[0]
-                val=ws.cell(row_num, col_num).value
+                val = ws.cell(row_num, col_num).value
                 value = (
                     val + row[1] if isinstance(val, (int, float)) else row[1]
                 )  # Add to previous value because with class convertions multiple categories can converge into a single one
@@ -1034,7 +1023,7 @@ class YearlyReportBike:
                 for row in res:
                     row_num = row_offset + category.code
                     col_num = col_offset + row[0]
-                    val=ws.cell(row_num, col_num).value
+                    val = ws.cell(row_num, col_num).value
                     value = (
                         val + row[1] if isinstance(val, (int, float)) else row[1]
                     )  # Add to previous value because with class convertions multiple categories can converge into a single one
@@ -1058,7 +1047,7 @@ class YearlyReportBike:
             for row in res:
                 row_num = row_offset + category.code
                 col_num = col_offset + row[0]
-                val=ws.cell(row_num, col_num).value
+                val = ws.cell(row_num, col_num).value
                 value = (
                     val + row[1] if isinstance(val, (int, float)) else row[1]
                 )  # Add to previous value because with class convertions multiple categories can converge into a single one
@@ -1069,6 +1058,6 @@ class YearlyReportBike:
         output = path.join(
             self.path_to_output_dir, "{}_{}_r.xlsx".format(self.section_id, self.year)
         )
-        
+
         workbook.save(filename=output)
         print(f"{datetime.now()}: YRB_run - end: Saved report to {output}")
