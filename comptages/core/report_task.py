@@ -47,7 +47,9 @@ class ReportTask(QgsTask):
     def finished(self, result):
         if result:
             QgsMessageLog.logMessage(
-                "{} - Task report generation ended for {}".format(datetime.now(), self.file_path),
+                "{} - Task report generation ended for {}".format(
+                    datetime.now(), self.file_path
+                ),
                 "Comptages",
                 Qgis.Info,
             )

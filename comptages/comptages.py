@@ -361,7 +361,9 @@ class Comptages(QObject):
 
     def do_yearly_report_action(self):
         QgsMessageLog.logMessage(
-            "{} - Generate task for yearly report action started".format(datetime.now()),
+            "{} - Generate task for yearly report action started".format(
+                datetime.now()
+            ),
             "Comptages",
             Qgis.Info,
         )
@@ -501,7 +503,9 @@ class Comptages(QObject):
 
     def do_generate_report_action(self, count_id):
         QgsMessageLog.logMessage(
-            "{} - Generate report preparation started for count_id {}".format(datetime.now(), count_id),
+            "{} - Generate report preparation started for count_id {}".format(
+                datetime.now(), count_id
+            ),
             "Comptages",
             Qgis.Info,
         )
@@ -510,7 +514,8 @@ class Comptages(QObject):
 
         if self.tm.countActiveTasks() > 0:
             push_info(
-                ("Veuillez patienter jusqu'à ce que l'importation soit terminée,"
+                (
+                    "Veuillez patienter jusqu'à ce que l'importation soit terminée,"
                     " puis relancer la génération du rapport."
                 )
             )
@@ -543,13 +548,13 @@ class Comptages(QObject):
         )
 
         if report_selection_dialog.exec_():
-            selected_sections_dates: dict[str, list[date]] = (
-                report_selection_dialog.get_inputs()
-            )
-            date_choosen=list()
+            selected_sections_dates: dict[
+                str, list[date]
+            ] = report_selection_dialog.get_inputs()
+            date_choosen = list()
             for selsec in selected_sections_dates:
                 date_choosen.extend(selected_sections_dates[selsec])
-            if len(date_choosen)==0:
+            if len(date_choosen) == 0:
                 QgsMessageLog.logMessage(
                     "{} - Generate report preparation ended: Nothing choosen to report on".format(
                         datetime.now()
@@ -572,7 +577,7 @@ class Comptages(QObject):
                     Qgis.Info,
                 )
                 return
-                
+
             QgsMessageLog.logMessage(
                 f"""{datetime.now()} - Generate report action can really begin now for count {count.id} with file_path: {file_path}.
                 Selected sections and dates: {selected_sections_dates}""",
@@ -597,10 +602,11 @@ class Comptages(QObject):
                 Qgis.Info,
             )
             return
-            
-        
+
         QgsMessageLog.logMessage(
-            "{} - Generate report preparation ended for count_id {}".format(datetime.now(), count_id),
+            "{} - Generate report preparation ended for count_id {}".format(
+                datetime.now(), count_id
+            ),
             "Comptages",
             Qgis.Info,
         )

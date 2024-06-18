@@ -30,14 +30,21 @@ def prepare_reports(
         template_name = "template.xlsx"
         template_path = os.path.join(current_dir, os.pardir, "report", template_name)
         assert count
-        _prepare_default_reports(file_path, count, template_path, callback_progress, sections_days)
+        _prepare_default_reports(
+            file_path, count, template_path, callback_progress, sections_days
+        )
     elif template == "yearly":
         template_name = "template_yearly.xlsx"
         template_path = os.path.join(current_dir, os.pardir, "report", template_name)
         assert year
         assert sections_ids
         _prepare_yearly_report(
-            file_path, year, template_path, sections_ids, callback_progress, sections_days
+            file_path,
+            year,
+            template_path,
+            sections_ids,
+            callback_progress,
+            sections_days,
         )
     elif template == "yearly_bike":
         pass
@@ -74,7 +81,7 @@ def _prepare_default_reports(
             QgsMessageLog.logMessage(
                 f"{datetime.now()} - Preparing reports: Adding workbook {workbook_nbr} ({output})",
                 "Comptages",
-                Qgis.Info
+                Qgis.Info,
             )
             progress = int(100 / mondays_qty / sections_qty * workbook_nbr)
             callback_progress(progress)
@@ -100,7 +107,9 @@ def _prepare_yearly_report(
     """Write default reports to disk (1 per section included in the count)"""
     # Get first count to be used as example
     count_qs = models.Count.objects.filter(
-        id_installation__lane__id_section=sections_ids[0], start_process_date__year__lte=year, end_process_date__year__gte=year
+        id_installation__lane__id_section=sections_ids[0],
+        start_process_date__year__lte=year,
+        end_process_date__year__gte=year,
     )
     if not count_qs.exists():
         info_str = f"{datetime.now()}: Aucun comptage trouvé pour cette section {sections_ids[0]} et cette année {year}"
@@ -355,7 +364,9 @@ def _data_day_yearly(
     df = statistics.get_time_data_yearly(year, section)
 
     if df is None:
-        print(f"{datetime.now()}:_data_day_yearly - Pas de données pour cette section {section} et cette année {year} /!\\/!\\/!\\")
+        print(
+            f"{datetime.now()}:_data_day_yearly - Pas de données pour cette section {section} et cette année {year} /!\\/!\\/!\\"
+        )
         return
 
     for i in range(7):

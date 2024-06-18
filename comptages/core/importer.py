@@ -10,6 +10,7 @@ from comptages.core.bulk_create_manager import BulkCreateManager
 
 TZ = timezone("Europe/Zurich")
 
+
 def simple_print_callback(progress: int):
     if progress % 10 == 0:
         print(f"Importing... {progress}%")
@@ -334,7 +335,11 @@ def _parse_file_header(file_path: str):
                     file_header["CLASS"] = "NZ13"
                 elif file_header["CLASS"][:5] == "FHWA ":
                     file_header["CLASS"] = "FHWA13"
-                elif file_header["CLASS"] in ("CAT-Cycle_dist-empat", "SPCH-MD5C", "SPCH-MD 5C"):
+                elif file_header["CLASS"] in (
+                    "CAT-Cycle_dist-empat",
+                    "SPCH-MD5C",
+                    "SPCH-MD 5C",
+                ):
                     file_header["CLASS"] = "SPCH-MD_5C"
 
     return file_header

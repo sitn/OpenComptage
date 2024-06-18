@@ -13,6 +13,7 @@ from comptages.datamodel import models
 
 TZ = timezone("Europe/Zurich")
 
+
 def get_time_data(
     count,
     section,
@@ -88,7 +89,9 @@ def get_time_data_yearly(
         qs = qs.filter(id_lane__direction=direction)
 
     if not qs.exists():
-        print(f"statistics.py : get_time_data_yearly - Nothing found for Year: {year}, Section: {section}, Lane: {lane}, Direction: {direction}.")
+        print(
+            f"statistics.py : get_time_data_yearly - Nothing found for Year: {year}, Section: {section}, Lane: {lane}, Direction: {direction}."
+        )
         return None
 
     # Vehicles by day and hour
@@ -101,8 +104,9 @@ def get_time_data_yearly(
         .values("import_status", "date", "hour", "thm")
     )
     if not qs.exists():
-        print(f"statistics.py : get_time_data_yearly - Nothing found !!! for Year: {year}. Section: {section}. Lane: {lane}. Direction: {direction}. !!!)")
-
+        print(
+            f"statistics.py : get_time_data_yearly - Nothing found !!! for Year: {year}. Section: {section}. Lane: {lane}. Direction: {direction}. !!!)"
+        )
 
     df = DataFrame.from_records(qs)
     if not df.empty:
@@ -237,7 +241,7 @@ def get_speed_data(
 
     if exclude_trash:
         qs = qs.exclude(id_category__trash=True)
-        
+
     print(f"statistics.py : get_speed_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs.values("speed", "times", "import_status"))
@@ -426,7 +430,9 @@ def get_characteristic_speed_by_hour(
         .order_by("hour", "speed")
         .values("hour", "speed")
     )
-    print(f"statistics.py : get_characteristic_speed_by_hour - qs.query={str(qs.query)}")
+    print(
+        f"statistics.py : get_characteristic_speed_by_hour - qs.query={str(qs.query)}"
+    )
 
     df = DataFrame.from_records(qs.values("hour", "speed"))
     if not df.empty:

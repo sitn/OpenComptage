@@ -5,7 +5,7 @@ from typing import Any, Iterable, Optional, Union
 from decimal import Decimal
 from qgis.core import Qgis, QgsMessageLog
 
-from django.db.models import Sum, F, Avg #, Count, ExpressionWrapper
+from django.db.models import Sum, F, Avg  # , Count, ExpressionWrapper
 from django.db.models.functions import (
     ExtractHour,
     ExtractIsoWeekDay,
@@ -14,8 +14,14 @@ from django.db.models.functions import (
 )
 from openpyxl import load_workbook
 
-from comptages.core import definitions, utils #, statistics
-from comptages.datamodel.models import CountDetail, Section, Lane, ClassCategory, Category
+from comptages.core import definitions, utils  # , statistics
+from comptages.datamodel.models import (
+    CountDetail,
+    Section,
+    Lane,
+    ClassCategory,
+    Category,
+)
 from comptages.datamodel.models import Count as modelCount
 
 
@@ -52,7 +58,9 @@ class YearlyReportBike:
             .values("weekday", "id_lane__direction", "total")
         )
 
-    def tjms_by_weekday_category(self, direction=None) -> "ValuesQuerySet[CountDetail, dict[str, Any]]":
+    def tjms_by_weekday_category(
+        self, direction=None
+    ) -> "ValuesQuerySet[CountDetail, dict[str, Any]]":
         # Get all the count details for section and the year
         # Test/GL
         qs = CountDetail.objects.filter(
@@ -90,10 +98,7 @@ class YearlyReportBike:
             .values("date")
             .annotate(tj=Sum("times"))
             .values("date", "tj")
-            .annotate(
-                weekday=ExtractIsoWeekDay("date"),
-                hour=ExtractHour("timestamp")
-            )
+            .annotate(weekday=ExtractIsoWeekDay("date"), hour=ExtractHour("timestamp"))
             .values("weekday", "hour")
             .annotate(tjm=Avg("tj"))
             .values("weekday", "hour", "tjm")
@@ -164,7 +169,7 @@ class YearlyReportBike:
 
             if hour not in acc[day]:
                 acc[day][hour] = {}
-                
+
             acc[day][hour] = val["runs"]
             return acc
 
@@ -240,10 +245,12 @@ class YearlyReportBike:
                     builder[item["month"]][item["week_day"]]["runs"]
                     / builder[item["month"]][item["week_day"]]["days"]
                 )
-        
+
         return builder
 
-    def runs_by_weekday_and_month(self) -> "ValuesQuerySet[CountDetail, dict[str, Any]]":
+    def runs_by_weekday_and_month(
+        self,
+    ) -> "ValuesQuerySet[CountDetail, dict[str, Any]]":
         # Get all the count details for section and the year
         qs = CountDetail.objects.filter(
             id_lane__id_section__id=self.section_id,
@@ -253,14 +260,17 @@ class YearlyReportBike:
 
         # Group by month, week_day
         results = (
-            qs.annotate(month=ExtractMonth("timestamp"), 
-                week_day=ExtractIsoWeekDay("timestamp"))
+            qs.annotate(
+                month=ExtractMonth("timestamp"), week_day=ExtractIsoWeekDay("timestamp")
+            )
             .values("month", "week_day")
             .annotate(daily_runs=Sum("times"))
             .values("month", "week_day", "daily_runs")
         )
-        print(f"yearly_report_bike.py : runs_by_weekday_and_month - results.query:{str(results.query)}")
-        
+        print(
+            f"yearly_report_bike.py : runs_by_weekday_and_month - results.query:{str(results.query)}"
+        )
+
         return results
 
     def nb_weekday_by_month(self) -> "ValuesQuerySet[CountDetail, dict[str, Any]]":
@@ -277,13 +287,15 @@ class YearlyReportBike:
             .values("date")
             .annotate(daily_runs=Sum("times"))
             .values("date", "daily_runs")
-            .annotate(month=ExtractMonth("timestamp"), 
-                week_day=ExtractIsoWeekDay("timestamp")
+            .annotate(
+                month=ExtractMonth("timestamp"), week_day=ExtractIsoWeekDay("timestamp")
             )
             .values("date", "month", "week_day")
         )
-        print(f"yearly_report_bike.py : nb_weekday_by_month - results.query:{str(results.query)}")
-        
+        print(
+            f"yearly_report_bike.py : nb_weekday_by_month - results.query:{str(results.query)}"
+        )
+
         def reducer(acc: dict, item) -> dict:
 
             if item["month"] not in acc:
@@ -331,7 +343,9 @@ class YearlyReportBike:
             .values("week_day", "daily_runs")
             .order_by("week_day")
         )
-        print(f"yearly_report_bike.py : tjms_total_runs_by_day_of_week - results.query:{str(results.query)}")
+        print(
+            f"yearly_report_bike.py : tjms_total_runs_by_day_of_week - results.query:{str(results.query)}"
+        )
         # FIXME
         # Aggregation via `values()` into `annotate()` all the way to the end result would be more performant.
         builder = {}
@@ -500,7 +514,7 @@ class YearlyReportBike:
         )
         # Base QuerySet
         base_qs = CountDetail.objects.filter(
-            id_count=count.id, 
+            id_count=count.id,
             id_category__in=categories_ids,
             timestamp__year=self.year,
         )
@@ -534,7 +548,7 @@ class YearlyReportBike:
             .values("date", "category_name")
             .annotate(value=Sum("times"))
         )
-        
+
         least_busy_date_row = (
             base_qs.annotate(
                 date=TruncDate("timestamp"), category_name=F("id_category__name")
@@ -626,7 +640,7 @@ class YearlyReportBike:
         # Getting data
         count_details = (
             CountDetail.objects.filter(
-                id_count=count_id, 
+                id_count=count_id,
                 id_category__in=categories_ids,
                 timestamp__year=self.year,
             )
@@ -645,7 +659,7 @@ class YearlyReportBike:
             month20 = (date - timedelta(days=20)).month
 
             for season, _range in self.seasons.items():
-                if month20 in _range :
+                if month20 in _range:
                     category_name = detail["category_name"]
 
                     if season not in acc:
@@ -769,10 +783,10 @@ class YearlyReportBike:
         )
         if not count_detail.exists():
             QgsMessageLog.logMessage(
-                f"{datetime.now()} - Aucun conmptage pour cette année ({self.year}) et cette section ({self.section_id})", 
-                "Comptages", 
-                Qgis.Info
-                )
+                f"{datetime.now()} - Aucun conmptage pour cette année ({self.year}) et cette section ({self.section_id})",
+                "Comptages",
+                Qgis.Info,
+            )
             return
 
         count = count_detail[0].id_count
@@ -902,7 +916,7 @@ class YearlyReportBike:
             for i, season in enumerate(self.seasons):
                 if saison == season:
                     for j, cat in enumerate(column_names):
-                        if cat in data[saison] :
+                        if cat in data[saison]:
                             ws.cell(
                                 column=j + column_offset,
                                 row=i + row_offset,
@@ -944,7 +958,9 @@ class YearlyReportBike:
             .distinct()
             .order_by("code")
         )
-        print(f"yearly_report_bike.py : Data_category, Direction Mario, categories.query={str(categories.query)}")
+        print(
+            f"yearly_report_bike.py : Data_category, Direction Mario, categories.query={str(categories.query)}"
+        )
 
         # Direction 1
         row_offset = 5
@@ -963,11 +979,9 @@ class YearlyReportBike:
             for row in res:
                 row_num = row_offset + category.code
                 col_num = col_offset + row[0]
-                val=ws.cell(row_num, col_num).value
+                val = ws.cell(row_num, col_num).value
                 # Add to previous value because with class convertions multiple categories can converge into a single one
-                value = (
-                    val + row[1] if isinstance(val, (int, float)) else row[1]
-                )
+                value = val + row[1] if isinstance(val, (int, float)) else row[1]
 
                 ws.cell(row=row_num, column=col_num, value=value)
 
@@ -988,7 +1002,7 @@ class YearlyReportBike:
                 for row in res:
                     row_num = row_offset + category.code
                     col_num = col_offset + row[0]
-                    val=ws.cell(row_num, col_num).value
+                    val = ws.cell(row_num, col_num).value
                     value = (
                         val + row[1] if isinstance(val, (int, float)) else row[1]
                     )  # Add to previous value because with class convertions multiple categories can converge into a single one
@@ -1012,11 +1026,9 @@ class YearlyReportBike:
             for row in res:
                 row_num = row_offset + category.code
                 col_num = col_offset + row[0]
-                val=ws.cell(row_num, col_num).value
+                val = ws.cell(row_num, col_num).value
                 # Add to previous value because with class convertions multiple categories can converge into a single one
-                value = (
-                    val + row[1] if isinstance(val, (int, float)) else row[1]
-                )
+                value = val + row[1] if isinstance(val, (int, float)) else row[1]
 
                 ws.cell(row=row_num, column=col_num, value=value)
 

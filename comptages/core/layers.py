@@ -981,7 +981,7 @@ class Layers(QObject):
             result.add(self.get_class_name_of_count(count.attribute("id")))
 
         return result
-        
+
     def get_years_of_counts_on_section(self, section_id: str):
         result = list()
         counts = self.get_counts_of_section(section_id)
