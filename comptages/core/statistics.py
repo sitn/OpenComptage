@@ -272,7 +272,7 @@ def get_speed_data(
                 right=False,  # Don't include rightmost edge (e.g. bin 10-20 is actually 10-19.9999999...)
             ),
         ],
-        observed=False
+        observed=False,
     ).sum("times")
 
     df = df.rename(columns={"speed": "speedNP"})

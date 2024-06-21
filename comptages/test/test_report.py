@@ -222,7 +222,7 @@ class ReportTest(TransactionTestCase):
             path_to_output_dir=self.test_outputs,
             year=2021,
             section_id=sections_ids.first(),
-            classtxt="SPCH-MD 5C"
+            classtxt="SPCH-MD 5C",
         )
         report.run()
 
@@ -270,7 +270,7 @@ class ReportTest(TransactionTestCase):
             path_to_output_dir=self.test_outputs,
             year=2021,
             section_id=sections_ids.first(),
-            classtxt="SPCH-MD 5C"
+            classtxt="SPCH-MD 5C",
         )
         report.run()
 
@@ -355,7 +355,7 @@ class ReportTest(TransactionTestCase):
             path_to_output_dir=self.test_outputs,
             year=2021,
             section_id=sections_ids.first(),
-            classtxt="SPCH-MD 5C"
+            classtxt="SPCH-MD 5C",
         )
         report.run()
 
