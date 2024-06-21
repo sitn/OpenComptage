@@ -548,9 +548,9 @@ class Comptages(QObject):
         )
 
         if report_selection_dialog.exec_():
-            selected_sections_dates: dict[
-                str, list[date]
-            ] = report_selection_dialog.get_inputs()
+            selected_sections_dates: dict[str, list[date]] = (
+                report_selection_dialog.get_inputs()
+            )
             date_choosen = list()
             for selsec in selected_sections_dates:
                 date_choosen.extend(selected_sections_dates[selsec])
