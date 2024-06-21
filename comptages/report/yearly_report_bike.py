@@ -464,41 +464,6 @@ class YearlyReportBike:
 
         return qs[0]["total"], qs[0]["month"]
 
-    @staticmethod
-    def count_details_by_day_month(self, count: modelCount) -> dict[int, Any]:
-        # Preparing to filter out categories that don't reference the class picked out by `class_name`
-        class_name = self.classtxt
-        # Excluding irrelevant
-        categories_name_to_exclude = ("TRASH", "ELSE")
-        categories_ids = (
-            ClassCategory.objects.filter(id_class__name=class_name)
-            .exclude(id_category__name__in=categories_name_to_exclude)
-            .values_list("id_category", flat=True)
-        )
-        qs = (
-            CountDetail.objects.filter(
-                id_count=count.id, id_category__in=categories_ids
-            )
-            .annotate(
-                month=ExtractMonth("timestamp"), day=ExtractIsoWeekDay("timestamp")
-            )
-            .values("month", "day")
-            .annotate(Sum("times"))
-        )
-
-        def reducer(acc, item):
-            month = item["month"]
-            day = item["day"]
-            runs = item["times__sum"]
-            if month not in acc:
-                acc[month] = {}
-            if day not in acc[month]:
-                acc[month][day] = runs
-            return acc
-
-        return reduce(reducer, qs, {})
-
-    @staticmethod
     def count_details_by_various_criteria(
         self,
         count: modelCount,
@@ -625,7 +590,6 @@ class YearlyReportBike:
             "total_runs_in_year": (total_runs_in_year, None),
         }
 
-    @staticmethod
     def count_details_by_season(self, count_id) -> dict[int, Any]:
         """Break down count details by season x section x class"""
         # Preparing to filter out categories that don't reference the class picked out by `class_name`
@@ -879,7 +843,7 @@ class YearlyReportBike:
 
         ws = workbook["Data_yearly_stats"]
         print_area = ws["B2:G8"]
-        data = self.count_details_by_various_criteria(self, count)
+        data = self.count_details_by_various_criteria(count)
         column_names = (
             "VELO",
             "MONO",
@@ -911,7 +875,7 @@ class YearlyReportBike:
         row_offset = 22
         column_offset = 2
 
-        data = self.count_details_by_season(self, count)
+        data = self.count_details_by_season(count)
         for saison in data:
             for i, season in enumerate(self.seasons):
                 if saison == season:
