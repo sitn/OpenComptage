@@ -25,7 +25,7 @@ class ReportTask(QgsTask):
         self.template = template
         self.year = year
         self.section_id = section_id
-        self.only_sections_ids = selected_sections_dates
+        self.sections_dates = selected_sections_dates
 
     def run(self):
         try:
@@ -36,6 +36,7 @@ class ReportTask(QgsTask):
                 self.template,
                 sections_ids=[self.section_id] if self.section_id else None,
                 callback_progress=self.setProgress,
+                sections_days=self.sections_dates,
             )
             return True
         except Exception as e:
@@ -46,16 +47,18 @@ class ReportTask(QgsTask):
     def finished(self, result):
         if result:
             QgsMessageLog.logMessage(
-                "{} - Report generation {} ended".format(datetime.now(), self.basename),
+                "{} - Task report generation ended for {}".format(
+                    datetime.now(), self.file_path
+                ),
                 "Comptages",
                 Qgis.Info,
             )
 
         else:
             QgsMessageLog.logMessage(
-                "{} - Report generation {} ended with errors: {}".format(
-                    datetime.now(), self.basename, self.exception
+                "{} - Task report generation creation for {} ended with errors: {}".format(
+                    datetime.now(), self.file_path, self.exception
                 ),
                 "Comptages",
-                Qgis.Info,
+                Qgis.Warning,
             )

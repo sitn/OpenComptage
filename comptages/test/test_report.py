@@ -222,12 +222,14 @@ class ReportTest(TransactionTestCase):
             path_to_output_dir=self.test_outputs,
             year=2021,
             section_id=sections_ids.first(),
+            classtxt="SPCH-MD 5C",
         )
         report.run()
 
     def test_busiest_by_season(self):
         # Import test data pertaining to "mobilité douce"
-        installation = models.Installation.objects.get(name="00107695")
+        installation_name = "00107695"
+        installation = models.Installation.objects.get(name=installation_name)
         model = models.Model.objects.all().first()
         device = models.Device.objects.all().first()
         sensor_type = models.SensorType.objects.all().first()
@@ -254,8 +256,26 @@ class ReportTest(TransactionTestCase):
         importer.import_file(str(path_to_file), count)
         print("Imported 1 count files!")
 
+        models.CountDetail.objects.update(import_status=0)
+        print("Forced import status to 'definitive' for testing purposes")
+
+        sections_ids = (
+            models.Section.objects.filter(lane__id_installation__name=installation_name)
+            .distinct()
+            .values_list("id", flat=True)
+        )
+        self.assertTrue(sections_ids.exists())
+
+        report = YearlyReportBike(
+            path_to_output_dir=self.test_outputs,
+            year=2021,
+            section_id=sections_ids.first(),
+            classtxt="SPCH-MD 5C",
+        )
+        report.run()
+
         # Collect count details
-        details = YearlyReportBike.count_details_by_season(count)
+        details = report.count_details_by_season(count)
         assert details
 
         def inspect_leaves(d, res) -> list[int]:
@@ -281,59 +301,20 @@ class ReportTest(TransactionTestCase):
             for cell, category in zip(
                 row, ("VELO", "MONO", "SHORT", "SPECIAL", "MULTI")
             ):
-                cell.value = sum(details[season][category].values())
-
-        wb.save(path_to_outputs)
-
-    def test_busiest_by_day_month(self):
-        # Import test data pertaining to "mobilité douce"
-        installation = models.Installation.objects.get(name="00107695")
-        model = models.Model.objects.all().first()
-        device = models.Device.objects.all().first()
-        sensor_type = models.SensorType.objects.all().first()
-        class_ = models.Class.objects.get(name="SPCH-MD 5C")
-        tz = pytz.timezone("Europe/Zurich")
-
-        count = models.Count.objects.create(
-            start_service_date=tz.localize(datetime(2021, 2, 1)),
-            end_service_date=tz.localize(datetime(2021, 12, 10)),
-            start_process_date=tz.localize(datetime(2021, 2, 10)),
-            end_process_date=tz.localize(datetime(2021, 12, 15)),
-            start_put_date=tz.localize(datetime(2021, 1, 1)),
-            end_put_date=tz.localize(datetime(2021, 1, 5)),
-            id_model=model,
-            id_device=device,
-            id_sensor_type=sensor_type,
-            id_class=class_,
-            id_installation=installation,
-        )
-
-        path_to_file = Path("/test_data").joinpath(
-            "64540060_Latenium_PS2021_ChMixte.txt"
-        )
-        importer.import_file(str(path_to_file), count)
-        print("Imported 1 count files!")
-
-        # Collecting count details
-        data = YearlyReportBike.count_details_by_day_month(count)
-
-        # Prepare workbook
-        path_to_inputs = Path("comptages/report").joinpath("template_yearly_bike.xlsx")
-        path_to_outputs = self.test_outputs.joinpath("yearly_bike.xlsx")
-        wb = load_workbook(path_to_inputs)
-
-        # Write data & save
-        ws = wb["Data_yearly_stats"]
-        print_area = ws["B31:H42"]
-        for row_idx, row in enumerate(print_area, 1):
-            for column_idx, cell in enumerate(row, 1):
-                cell.value = data[row_idx][column_idx]
+                category_data = details.get(season, {}).get(category, [])
+                if isinstance(category_data, (list, tuple)):
+                    cell.value = sum(details[season][category].values())
+                elif isinstance(category_data, int):
+                    cell.value = details[season][category]
+                else:
+                    cell.value = 0
 
         wb.save(path_to_outputs)
 
     def test_busiest_by_various_criteria(self):
         # Import test data pertaining to "mobilité douce"
-        installation = models.Installation.objects.get(name="00107695")
+        installation_name = "00107695"
+        installation = models.Installation.objects.get(name=installation_name)
         model = models.Model.objects.all().first()
         device = models.Device.objects.all().first()
         sensor_type = models.SensorType.objects.all().first()
@@ -360,8 +341,26 @@ class ReportTest(TransactionTestCase):
         importer.import_file(str(path_to_file), count)
         print("Imported 1 count files!")
 
+        models.CountDetail.objects.update(import_status=0)
+        print("Forced import status to 'definitive' for testing purposes")
+
+        sections_ids = (
+            models.Section.objects.filter(lane__id_installation__name=installation_name)
+            .distinct()
+            .values_list("id", flat=True)
+        )
+        self.assertTrue(sections_ids.exists())
+
+        report = YearlyReportBike(
+            path_to_output_dir=self.test_outputs,
+            year=2021,
+            section_id=sections_ids.first(),
+            classtxt="SPCH-MD 5C",
+        )
+        report.run()
+
         # Collecting count details
-        data = YearlyReportBike.count_details_by_various_criteria(count)
+        data = report.count_details_by_various_criteria(count)
 
         # Prepare workbook
         path_to_inputs = Path("comptages/report").joinpath("template_yearly_bike.xlsx")
