@@ -96,7 +96,9 @@ def get_time_data_yearly(
         qs = qs.filter(id_lane__direction=direction)
 
     if not qs.exists():
-        print(f"statistics.py : get_time_data_yearly - Nothing found for Year: {year}, Section: {section}, Lane: {lane}, Direction: {direction}.")
+        print(
+            f"statistics.py : get_time_data_yearly - Nothing found for Year: {year}, Section: {section}, Lane: {lane}, Direction: {direction}."
+        )
         return None
 
     # Vehicles by day and hour
@@ -109,7 +111,9 @@ def get_time_data_yearly(
         .values("import_status", "date", "hour", "thm")
     )
     if not qs.exists():
-        print(f"statistics.py : get_time_data_yearly - Nothing found !!! for Year: {year}. Section: {section}. Lane: {lane}. Direction: {direction}. !!!)")
+        print(
+            f"statistics.py : get_time_data_yearly - Nothing found !!! for Year: {year}. Section: {section}. Lane: {lane}. Direction: {direction}. !!!)"
+        )
 
     print(f"statistics.py : get_time_data_yearly - qsa.query={str(qs.query)}")
 
@@ -455,7 +459,9 @@ def get_characteristic_speed_by_hour(
         .order_by("hour", "speed")
         .values("hour", "speed")
     )
-    print(f"statistics.py : get_characteristic_speed_by_hour - qs.query={str(qs.query)}")
+    print(
+        f"statistics.py : get_characteristic_speed_by_hour - qs.query={str(qs.query)}"
+    )
 
     df = DataFrame.from_records(qs.values("hour", "speed"))
     if not df.empty:
@@ -569,7 +575,8 @@ def get_special_periods(first_day, last_day) -> QuerySet[models.SpecialPeriod]:
 
 def get_month_data(
     section: models.Section,
-    start, end,
+    start,
+    end,
     direction=None,
     exclude_trash=False,
 ) -> DataFrame:
