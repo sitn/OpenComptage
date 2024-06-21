@@ -28,6 +28,8 @@ jobs:
       - name: Package
         run: qgis-plugin-ci --no-validation package 'test'
       - name: Lint
+        run: black . --diff --color
+      - name: Lint check
         run: black . --check
       - name: Check
         run: pyright . > pyright_report.txt
