@@ -5,16 +5,16 @@ from typing import Any, Iterable, Optional, Union
 from decimal import Decimal
 from qgis.core import Qgis, QgsMessageLog
 
-from django.db.models import Sum, F, Avg  # , Count, ExpressionWrapper
+from openpyxl import load_workbook
+from django.db.models import Sum, F, Avg
 from django.db.models.functions import (
     ExtractHour,
     ExtractIsoWeekDay,
     ExtractMonth,
     TruncDate,
 )
-from openpyxl import load_workbook
 
-from comptages.core import definitions, utils  # , statistics
+from comptages.core import definitions, utils
 from comptages.datamodel.models import (
     CountDetail,
     Section,
@@ -33,7 +33,6 @@ class YearlyReportBike:
         self.year = year
         self.section_id = section_id
         self.classtxt = classtxt
-        # Assuming seasons to run from 21 <month> to 20 <month n + 3> -> month20 = (date - timedelta(days=20)).month
         self.seasons = {
             "printemps": [3, 4, 5],
             "été": [6, 7, 8],
@@ -127,6 +126,9 @@ class YearlyReportBike:
             )
             .values("runs", "hour", "direction", "section")
         )
+        print(
+            f"yearly_report_bike.py : total_runs_by_hour_and_direction - results.query:{str(results.query)}"
+        )
 
         def partition(acc: dict, val: dict) -> dict:
             hour = val["hour"]
@@ -158,6 +160,9 @@ class YearlyReportBike:
             .values("runs", "hour")
             .annotate(day=ExtractIsoWeekDay("timestamp"))
             .order_by("day")
+        )
+        print(
+            f"yearly_report_bike.py : total_runs_by_hour_one_direction - results.query:{str(results.query)}"
         )
 
         def reducer(acc: dict, val: dict) -> dict:
@@ -217,6 +222,9 @@ class YearlyReportBike:
             .values("date", "daily_runs", "week_day")
             .annotate(month=ExtractMonth("timestamp"))
             .values("week_day", "month", "daily_runs")
+        )
+        print(
+            f"yearly_report_bike.py : tjms_by_weekday_and_month - results.query:{str(results.query)}"
         )
 
         # FIXME
@@ -346,6 +354,7 @@ class YearlyReportBike:
         print(
             f"yearly_report_bike.py : tjms_total_runs_by_day_of_week - results.query:{str(results.query)}"
         )
+
         # FIXME
         # Aggregation via `values()` into `annotate()` all the way to the end result would be more performant.
         builder = {}
@@ -364,6 +373,7 @@ class YearlyReportBike:
                     builder[item["week_day"]]["runs"]
                     / builder[item["week_day"]]["days"]
                 )
+
         return builder
 
     def total_runs_by_class(self) -> dict[str, Any]:
@@ -379,6 +389,9 @@ class YearlyReportBike:
             .values("day")
             .annotate(runs=Sum("times"), code=F("id_category__code"))
             .values("day", "runs", "code")
+        )
+        print(
+            f"yearly_report_bike.py : total_runs_by_class - results.query:{str(results.query)}"
         )
 
         def reducer(acc: dict, i: dict):
@@ -407,6 +420,9 @@ class YearlyReportBike:
         )
         assert qs.exists()
         results = qs.aggregate(res=Sum("times"))["res"]
+        print(
+            f"yearly_report_bike.py : tjms_by_direction_bike - results.query:{str(results.query)}"
+        )
         # TODO: avoid the division?
         return results / 365
 
@@ -417,6 +433,8 @@ class YearlyReportBike:
             import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         )
         results = qs.aggregate(res=Sum("times"))["res"]
+        print(f"yearly_report_bike.py : total - results.query:{str(results.query)}")
+
         return results
 
     def max_day(self, categories=[1]) -> tuple[str, Any]:
@@ -431,6 +449,7 @@ class YearlyReportBike:
             .annotate(total=Sum("times"))
             .order_by("-total")
         )
+        print(f"yearly_report_bike.py : max_day - qs.query:{str(qs.query)}")
 
         return qs[0]["total"], qs[0]["date"]
 
@@ -446,6 +465,7 @@ class YearlyReportBike:
             .annotate(total=Sum("times"))
             .order_by("-total")
         )
+        print(f"yearly_report_bike.py : max_month - qs.query:{str(qs.query)}")
 
         return qs[0]["total"], qs[0]["month"]
 
@@ -461,6 +481,7 @@ class YearlyReportBike:
             .annotate(total=Sum("times"))
             .order_by("total")
         )
+        print(f"yearly_report_bike.py : min_month - qs.query:{str(qs.query)}")
 
         return qs[0]["total"], qs[0]["month"]
 
@@ -477,11 +498,18 @@ class YearlyReportBike:
             .exclude(id_category__name__in=categories_name_to_exclude)
             .values_list("id_category", flat=True)
         )
+        print(
+            f"yearly_report_bike.py : count_details_by_various_criteria - categories_ids.query:{str(categories_ids.query)}"
+        )
+
         # Base QuerySet
         base_qs = CountDetail.objects.filter(
             id_count=count.id,
             id_category__in=categories_ids,
             timestamp__year=self.year,
+        )
+        print(
+            f"yearly_report_bike.py : count_details_by_various_criteria - base_qs.query:{str(base_qs.query)}"
         )
 
         # Specialized QuerySets
@@ -490,14 +518,18 @@ class YearlyReportBike:
             .values("category_name")
             .annotate(value=Sum("times"))
         )
+        print(
+            f"yearly_report_bike.py : count_details_by_various_criteria - total_runs_in_year.query:{str(total_runs_in_year.query)}"
+        )
 
         busy_date = (
-            base_qs.annotate(
-                date=TruncDate("timestamp"), category_name=F("id_category__name")
-            )
-            .values("date", "category_name")
+            base_qs.annotate(date=TruncDate("timestamp"))
+            .values("date")
             .annotate(value=Sum("times"))
             .order_by("-value")
+        )
+        print(
+            f"yearly_report_bike.py : count_details_by_various_criteria - busy_date.query:{str(busy_date.query)}"
         )
 
         busiest_date = busy_date.first()
@@ -513,6 +545,9 @@ class YearlyReportBike:
             .values("date", "category_name")
             .annotate(value=Sum("times"))
         )
+        print(
+            f"yearly_report_bike.py : count_details_by_various_criteria - busiest_date_row.query:{str(busiest_date_row.query)}"
+        )
 
         least_busy_date_row = (
             base_qs.annotate(
@@ -522,12 +557,18 @@ class YearlyReportBike:
             .values("date", "category_name")
             .annotate(value=Sum("times"))
         )
+        print(
+            f"yearly_report_bike.py : count_details_by_various_criteria - least_busy_date_row.query:{str(least_busy_date_row.query)}"
+        )
 
         busy_month = (
             base_qs.annotate(month=ExtractMonth("timestamp"))
             .values("month")
             .annotate(value=Sum("times"))
             .order_by("-value")
+        )
+        print(
+            f"yearly_report_bike.py : count_details_by_various_criteria - busy_month.query:{str(busy_month.query)}"
         )
 
         busiest_month = busy_month.first()
@@ -563,8 +604,12 @@ class YearlyReportBike:
             .annotate(value=Sum("times"))
             .order_by("-value")
         )
+
         total_runs_busiest_hour_weekday = busiest_hour.exclude(week_day__gt=5)
         total_runs_busiest_hour_weekend = busiest_hour.exclude(week_day__lt=6)
+        print(
+            f"yearly_report_bike.py : count_details_by_various_criteria - busiest_weekend_hour.query:{str(total_runs_busiest_hour_weekend.query)}"
+        )
 
         busiest_weekday = total_runs_busiest_hour_weekday.first()
         busiest_weekend = total_runs_busiest_hour_weekend.first()
@@ -592,6 +637,7 @@ class YearlyReportBike:
 
     def count_details_by_season(self, count_id) -> dict[int, Any]:
         """Break down count details by season x section x class"""
+        # Assuming seasons to run from 21 <month> to 20 <month n + 3> -> month20 = (date - timedelta(days=20)).month
         # Preparing to filter out categories that don't reference the class picked out by `class_name`
         class_name = self.classtxt
         # Excluding irrelevant
@@ -615,6 +661,9 @@ class YearlyReportBike:
             .values("date", "category_name")
             .annotate(value=Sum("times"))
             .values("date", "category_name", "value")
+        )
+        print(
+            f"yearly_report_bike.py : count_details_by_season - count_details.query:{str(count_details.query)}"
         )
 
         # Preparing to collect data
@@ -703,9 +752,15 @@ class YearlyReportBike:
             .values("week_day", "value")
             .values_list("week_day", "value")
         )
+        print(
+            "yearly_report_bike.py : get_category_data_by_dow - qs.query=",
+            str(qs.query),
+        )
+
         return qs
 
     def run(self):
+        print(f"{datetime.now()}: YRB_run - begin... ({self.path_to_output_dir})")
         current_dir = path.dirname(path.abspath(__file__))
         template = path.join(current_dir, "template_yearly_bike.xlsx")
         workbook = load_workbook(filename=template)
@@ -731,7 +786,7 @@ class YearlyReportBike:
         ws[
             "B3"
         ] = f"""
-            Poste de comptage : {section.id}  
+            Poste de comptage : {section.id}
             Axe : {section.owner}:{section.road}{section.way}
             PR {section.start_pr} + {section_start_dist} m à PR {section.end_pr} + {section_end_dist} m
         """
@@ -1000,5 +1055,6 @@ class YearlyReportBike:
         output = path.join(
             self.path_to_output_dir, "{}_{}_r.xlsx".format(self.section_id, self.year)
         )
+
         workbook.save(filename=output)
         print(f"{datetime.now()}: YRB_run - end: Saved report to {output}")
