@@ -1,17 +1,15 @@
 from typing import Any
-from pandas import DataFrame, cut
 from functools import reduce
 from datetime import timedelta, datetime
-from pytz import timezone
 
+from pandas import DataFrame, cut
+from pytz import timezone
 from django.db.models import F, CharField, Value, Q, Sum, QuerySet
 from django.db.models.functions import ExtractHour, Trunc, Concat
 
 from comptages.core import definitions
 from comptages.core import utils
 from comptages.datamodel import models
-
-TZ = timezone("Europe/Zurich")
 
 
 def get_time_data(
@@ -57,16 +55,24 @@ def get_time_data(
         .annotate(thm=Sum("times"))
         .values("import_status", "date", "hour", "thm")
     )
+    print(
+        f"statistics.py : get_time_data - qs.query={str(qs.query)}"
+    )
 
     df = DataFrame.from_records(qs)
     if not df.empty:
         df["date"] = df["date"].dt.strftime("%a %d.%m.%Y")
         df["import_status"].replace({0: "Existant", 1: "Nouveau"}, inplace=True)
+
     return df
 
 
 def get_time_data_yearly(
-    year, section: models.Section, lane=None, direction=None
+    year,
+    section: models.Section,
+    lane=None,
+    direction=None,
+    exclude_trash=False,
 ) -> DataFrame:
     """Vehicles by hour and day of the week"""
     start = datetime(year, 1, 1)
@@ -81,6 +87,9 @@ def get_time_data_yearly(
         timestamp__gte=start,
         timestamp__lt=end,
     )
+
+    if exclude_trash:
+        qs = qs.exclude(id_category__trash=True)
 
     if lane is not None:
         qs = qs.filter(id_lane=lane)
@@ -107,6 +116,9 @@ def get_time_data_yearly(
         print(
             f"statistics.py : get_time_data_yearly - Nothing found !!! for Year: {year}. Section: {section}. Lane: {lane}. Direction: {direction}. !!!)"
         )
+    print(
+        f"statistics.py : get_time_data_yearly - qsa.query={str(qs.query)}"
+    )
 
     df = DataFrame.from_records(qs)
     if not df.empty:
@@ -162,7 +174,7 @@ def get_day_data(
         .annotate(tj=Sum("times"))
         .values("date", "tj", "import_status")
     )
-    print(f"statistics.py : get_day_data - qs.query=", str(qs.query))
+    print(f"statistics.py : get_day_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     mean = 0
@@ -212,7 +224,9 @@ def get_category_data(
         .order_by("cat_code")
         .values("cat_name", "cat_code", "cat_name_code", "value")
     )
-    print(f"statistics.py : get_category_data - qs.query={str(qs.query)}")
+    print(
+        f"statistics.py : get_category_data - qs.query={str(qs.query)}"
+    )
 
     df = DataFrame.from_records(qs)
     return df
@@ -290,6 +304,7 @@ def get_light_numbers(
     direction=None,
     start=None,
     end=None,
+    exclude_trash=False,
 ) -> dict:
     if not start:
         start = count.start_process_date
@@ -304,6 +319,9 @@ def get_light_numbers(
         timestamp__gte=start,
         timestamp__lt=end,
     )
+
+    if exclude_trash:
+        qs = qs.exclude(id_category__trash=True)
 
     if lane is not None:
         qs = qs.filter(id_lane=lane)
@@ -325,7 +343,12 @@ def get_light_numbers(
 
 
 def get_light_numbers_yearly(
-    section: models.Section, lane=None, direction=None, start=None, end=None
+    section: models.Section,
+    lane=None,
+    direction=None,
+    start=None,
+    end=None,
+    exclude_trash=False,
 ) -> DataFrame:
     qs = models.CountDetail.objects.filter(
         id_lane__id_section=section,
@@ -333,6 +356,9 @@ def get_light_numbers_yearly(
         timestamp__gte=start,
         timestamp__lt=end,
     )
+
+    if exclude_trash:
+        qs = qs.exclude(id_category__trash=True)
 
     if lane is not None:
         qs = qs.filter(id_lane=lane)
@@ -359,6 +385,7 @@ def get_speed_data_by_hour(
     end=None,
     speed_low=0,
     speed_high=15,
+    exclude_trash=False,
 ) -> "ValuesQuerySet[models.CountDetail, Any]":
     if not start:
         start = count.start_process_date
@@ -373,6 +400,9 @@ def get_speed_data_by_hour(
         timestamp__gte=start,
         timestamp__lt=end,
     )
+
+    if exclude_trash:
+        qs = qs.exclude(id_category__trash=True)
 
     if count is not None:
         qs = qs.filter(id_count=count)
@@ -403,6 +433,7 @@ def get_characteristic_speed_by_hour(
     start=None,
     end=None,
     v=0.15,
+    exclude_trash=False,
 ) -> DataFrame:
     if not start:
         start = count.start_process_date
@@ -416,6 +447,9 @@ def get_characteristic_speed_by_hour(
         timestamp__gte=start,
         timestamp__lt=end,
     )
+
+    if exclude_trash:
+        qs = qs.exclude(id_category__trash=True)
 
     if count is not None:
         qs = qs.filter(id_count=count)
@@ -450,6 +484,7 @@ def get_average_speed_by_hour(
     start=None,
     end=None,
     v=0.15,
+    exclude_trash=False,
 ) -> DataFrame:
     if not start:
         start = count.start_process_date
@@ -463,6 +498,9 @@ def get_average_speed_by_hour(
         timestamp__gte=start,
         timestamp__lt=end,
     )
+
+    if exclude_trash:
+        qs = qs.exclude(id_category__trash=True)
 
     if count is not None:
         qs = qs.filter(id_count=count)
@@ -541,7 +579,12 @@ def get_special_periods(first_day, last_day) -> QuerySet[models.SpecialPeriod]:
     return qs
 
 
-def get_month_data(section: models.Section, start, end, direction=None) -> DataFrame:
+def get_month_data(
+    section: models.Section,
+    start, end,
+    direction=None,
+    exclude_trash=False,
+) -> DataFrame:
     qs = models.CountDetail.objects.filter(
         id_lane__id_section=section, timestamp__gte=start, timestamp__lt=end
     )
@@ -553,6 +596,9 @@ def get_month_data(section: models.Section, start, end, direction=None) -> DataF
         .annotate(tm=Sum("times"))
         .values("month", "tm", "import_status")
     )
+
+    if exclude_trash:
+        qs = qs.exclude(id_category__trash=True)
 
     if direction is not None:
         qs = qs.filter(id_lane__direction=direction)
@@ -569,8 +615,9 @@ def get_valid_days(year: int, section: models.Section) -> int:
     where a day is deemed valid just in case there are at least 14 1-hour blocks
     between 6pm and 4pm with at least 1 vehicle.
     """
-    start = TZ.localize(datetime(year, 1, 1))
-    end = TZ.localize(datetime(year + 1, 1, 1))
+    tz = timezone("Europe/Zurich")
+    start = tz.localize(datetime(year, 1, 1))
+    end = tz.localize(datetime(year + 1, 1, 1))
     iterator = (
         models.CountDetail.objects.filter(
             id_lane__id_section=section,
@@ -583,6 +630,9 @@ def get_valid_days(year: int, section: models.Section) -> int:
         )
         .order_by("date")
         .values("date", "hour", "tj")
+    )
+    print(
+        f"statistics.py : get_valid_days - iterator.query={str(iterator.query)}"
     )
 
     def count_valid_blocks(acc: dict, item: dict) -> dict[str, int]:
