@@ -55,9 +55,7 @@ def get_time_data(
         .annotate(thm=Sum("times"))
         .values("import_status", "date", "hour", "thm")
     )
-    print(
-        f"statistics.py : get_time_data - qs.query={str(qs.query)}"
-    )
+    print(f"statistics.py : get_time_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     if not df.empty:
@@ -116,9 +114,7 @@ def get_time_data_yearly(
         print(
             f"statistics.py : get_time_data_yearly - Nothing found !!! for Year: {year}. Section: {section}. Lane: {lane}. Direction: {direction}. !!!)"
         )
-    print(
-        f"statistics.py : get_time_data_yearly - qsa.query={str(qs.query)}"
-    )
+    print(f"statistics.py : get_time_data_yearly - qsa.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     if not df.empty:
@@ -224,9 +220,7 @@ def get_category_data(
         .order_by("cat_code")
         .values("cat_name", "cat_code", "cat_name_code", "value")
     )
-    print(
-        f"statistics.py : get_category_data - qs.query={str(qs.query)}"
-    )
+    print(f"statistics.py : get_category_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     return df
@@ -581,7 +575,8 @@ def get_special_periods(first_day, last_day) -> QuerySet[models.SpecialPeriod]:
 
 def get_month_data(
     section: models.Section,
-    start, end,
+    start,
+    end,
     direction=None,
     exclude_trash=False,
 ) -> DataFrame:
@@ -631,9 +626,7 @@ def get_valid_days(year: int, section: models.Section) -> int:
         .order_by("date")
         .values("date", "hour", "tj")
     )
-    print(
-        f"statistics.py : get_valid_days - iterator.query={str(iterator.query)}"
-    )
+    print(f"statistics.py : get_valid_days - iterator.query={str(iterator.query)}")
 
     def count_valid_blocks(acc: dict, item: dict) -> dict[str, int]:
         date = item["date"]

@@ -22,9 +22,7 @@ def prepare_reports(
     callback_progress=simple_print_callback,
     sections_days: Optional[dict[str, list[date]]] = None,
 ):
-    print(
-        f"{datetime.now()}: _prepare_reports: begin, folder: {file_path}"
-    )
+    print(f"{datetime.now()}: _prepare_reports: begin, folder: {file_path}")
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
     if template == "default":
@@ -49,9 +47,7 @@ def prepare_reports(
         )
     elif template == "yearly_bike":
         pass
-    print(
-        f"{datetime.now()}: _prepare_reports: ended, folder: {file_path}"
-    )
+    print(f"{datetime.now()}: _prepare_reports: ended, folder: {file_path}")
 
 
 def _prepare_default_reports(
@@ -62,9 +58,7 @@ def _prepare_default_reports(
     sections_days: Optional[dict[str, list[date]]] = None,
 ):
     """Write default reports to disk (1 per section in count, per week)"""
-    print(
-        f"{datetime.now()}: _prepare_default_reports: begin, count: {count}"
-    )
+    print(f"{datetime.now()}: _prepare_default_reports: begin, count: {count}")
     # We do by section and not by count because of special cases.
     sections = models.Section.objects.filter(
         lane__id_installation__count=count
@@ -102,9 +96,7 @@ def _prepare_default_reports(
 
             workbook.save(filename=output)
 
-    print(
-        f"{datetime.now()}: _prepare_default_reports: ended, count: {count}"
-    )
+    print(f"{datetime.now()}: _prepare_default_reports: ended, count: {count}")
 
 
 def _prepare_yearly_report(

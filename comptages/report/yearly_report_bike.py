@@ -449,9 +449,7 @@ class YearlyReportBike:
             import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         )
         results = qs.aggregate(res=Sum("times"))["res"]
-        print(
-            f"yearly_report_bike.py : total - results.query:{str(results.query)}"
-        )
+        print(f"yearly_report_bike.py : total - results.query:{str(results.query)}")
 
         return results
 
@@ -467,9 +465,7 @@ class YearlyReportBike:
             .annotate(total=Sum("times"))
             .order_by("-total")
         )
-        print(
-            f"yearly_report_bike.py : max_day - qs.query:{str(qs.query)}"
-        )
+        print(f"yearly_report_bike.py : max_day - qs.query:{str(qs.query)}")
 
         return qs[0]["total"], qs[0]["date"]
 
@@ -485,9 +481,7 @@ class YearlyReportBike:
             .annotate(total=Sum("times"))
             .order_by("-total")
         )
-        print(
-            f"yearly_report_bike.py : max_month - qs.query:{str(qs.query)}"
-        )
+        print(f"yearly_report_bike.py : max_month - qs.query:{str(qs.query)}")
 
         return qs[0]["total"], qs[0]["month"]
 
@@ -503,9 +497,7 @@ class YearlyReportBike:
             .annotate(total=Sum("times"))
             .order_by("total")
         )
-        print(
-            f"yearly_report_bike.py : min_month - qs.query:{str(qs.query)}"
-        )
+        print(f"yearly_report_bike.py : min_month - qs.query:{str(qs.query)}")
 
         return qs[0]["total"], qs[0]["month"]
 
@@ -785,9 +777,7 @@ class YearlyReportBike:
         return qs
 
     def run(self):
-        print(
-            f"{datetime.now()}: YRB_run - begin... ({self.path_to_output_dir})"
-        )
+        print(f"{datetime.now()}: YRB_run - begin... ({self.path_to_output_dir})")
         current_dir = path.dirname(path.abspath(__file__))
         template = path.join(current_dir, "template_yearly_bike.xlsx")
         workbook = load_workbook(filename=template)
@@ -810,7 +800,9 @@ class YearlyReportBike:
         section_start_dist = render_section_dist(section.start_dist)
         section_end_dist = render_section_dist(section.end_dist)
 
-        ws["B3"] = f"""
+        ws[
+            "B3"
+        ] = f"""
             Poste de comptage : {section.id}
             Axe : {section.owner}:{section.road}{section.way}
             PR {section.start_pr} + {section_start_dist} m à PR {section.end_pr} + {section_end_dist} m
