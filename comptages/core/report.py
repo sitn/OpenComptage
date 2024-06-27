@@ -1,11 +1,9 @@
 import os
 from datetime import date, datetime, timedelta
-from typing import Generator
-
-from datetime import timedelta, datetime
-from typing import Optional
-from openpyxl import load_workbook, Workbook
+from typing import Generator, Optional
 from qgis.core import Qgis, QgsMessageLog
+
+from openpyxl import load_workbook, Workbook
 
 from comptages.core import statistics
 from comptages.datamodel import models
@@ -24,6 +22,7 @@ def prepare_reports(
     callback_progress=simple_print_callback,
     sections_days: Optional[dict[str, list[date]]] = None,
 ):
+    print(f"{datetime.now()}: _prepare_reports: begin, folder: {file_path}")
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
     if template == "default":
@@ -48,6 +47,7 @@ def prepare_reports(
         )
     elif template == "yearly_bike":
         pass
+    print(f"{datetime.now()}: _prepare_reports: ended, folder: {file_path}")
 
 
 def _prepare_default_reports(
@@ -58,6 +58,7 @@ def _prepare_default_reports(
     sections_days: Optional[dict[str, list[date]]] = None,
 ):
     """Write default reports to disk (1 per section in count, per week)"""
+    print(f"{datetime.now()}: _prepare_default_reports: begin, count: {count}")
     # We do by section and not by count because of special cases.
     sections = models.Section.objects.filter(
         lane__id_installation__count=count
@@ -95,6 +96,8 @@ def _prepare_default_reports(
 
             workbook.save(filename=output)
 
+    print(f"{datetime.now()}: _prepare_default_reports: ended, count: {count}")
+
 
 def _prepare_yearly_report(
     file_path: str,
@@ -105,6 +108,9 @@ def _prepare_yearly_report(
     sections_days: Optional[dict[str, list[date]]] = None,
 ):
     """Write default reports to disk (1 per section included in the count)"""
+    print(
+        f"{datetime.now()}: _prepare_yearly_report: begin, sections_ids: {sections_ids}"
+    )
     # Get first count to be used as example
     count_qs = models.Count.objects.filter(
         id_installation__lane__id_section=sections_ids[0],
@@ -113,6 +119,7 @@ def _prepare_yearly_report(
     )
     if not count_qs.exists():
         info_str = f"{datetime.now()}: Aucun comptage trouvé pour cette section {sections_ids[0]} et cette année {year}"
+        print(info_str)
         QgsMessageLog.logMessage(info_str, "Comptages", Qgis.Warning)
 
         return
@@ -136,6 +143,10 @@ def _prepare_yearly_report(
         _remove_useless_sheets(count, workbook)
         output = os.path.join(file_path, f"{section.id}_{year}_r.xlsx")
         workbook.save(filename=output)
+
+    print(
+        f"{datetime.now()}: _prepare_yearly_report: ended, sections_ids: {sections_ids}"
+    )
 
 
 def _mondays_of_count(count: models.Count) -> Generator[date, None, None]:
@@ -247,7 +258,12 @@ def _data_count_yearly(
         ws["B14"] = lanes[1].direction_desc
 
 
-def _data_day(count: models.Count, section: models.Section, monday, workbook: Workbook):
+def _data_day(
+    count: models.Count,
+    section: models.Section,
+    monday,
+    workbook: Workbook,
+):
     ws = workbook["Data_day"]
 
     # Monthly coefficients
@@ -285,6 +301,7 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
             section,
             start=monday + timedelta(days=i),
             end=monday + timedelta(days=i + 1),
+            exclude_trash=True,
         )
 
         for row in df.itertuples():
@@ -300,6 +317,7 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
             start=monday + timedelta(days=i),
             end=monday + timedelta(days=i + 1),
             direction=1,
+            exclude_trash=True,
         )
 
         for row in df.itertuples():
@@ -315,6 +333,7 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
             start=monday + timedelta(days=i),
             end=monday + timedelta(days=i + 1),
             direction=1,
+            exclude_trash=True,
         )
         ws.cell(row=row_offset, column=col_offset + i, value=light.get(True, 0))
         ws.cell(row=row_offset + 1, column=col_offset + i, value=light.get(False, 0))
@@ -330,6 +349,7 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
                 start=monday + timedelta(days=i),
                 end=monday + timedelta(days=i + 1),
                 direction=2,
+                exclude_trash=True,
             )
 
             for row in df.itertuples():
@@ -345,6 +365,7 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
                 start=monday + timedelta(days=i),
                 end=monday + timedelta(days=i + 1),
                 direction=2,
+                exclude_trash=True,
             )
             ws.cell(row=row_offset, column=col_offset + i, value=light.get(True, 0))
             ws.cell(
@@ -353,15 +374,21 @@ def _data_day(count: models.Count, section: models.Section, monday, workbook: Wo
 
 
 def _data_day_yearly(
-    count: models.Count, section: models.Section, year: int, workbook: Workbook
+    count: models.Count,
+    section: models.Section,
+    year: int,
+    workbook: Workbook,
 ):
     ws = workbook["Data_day"]
 
     # Total (section)
     row_offset = 69
     col_offset = 2
-
-    df = statistics.get_time_data_yearly(year, section)
+    df = statistics.get_time_data_yearly(
+        year,
+        section,
+        exclude_trash=True,
+    )
 
     if df is None:
         print(
@@ -378,7 +405,10 @@ def _data_day_yearly(
     row_offset = 95
     col_offset = 2
     df = statistics.get_light_numbers_yearly(
-        section, start=datetime(year, 1, 1), end=datetime(year + 1, 1, 1)
+        section,
+        start=datetime(year, 1, 1),
+        end=datetime(year + 1, 1, 1),
+        exclude_trash=True,
     )
 
     for i in range(7):
@@ -396,10 +426,17 @@ def _data_day_yearly(
     # Direction 1
     row_offset = 5
     col_offset = 2
-
-    df = statistics.get_time_data_yearly(year, section, direction=1)
+    df = statistics.get_time_data_yearly(
+        year,
+        section,
+        direction=1,
+        exclude_trash=True,
+    )
 
     if df is None:
+        print(
+            f"{datetime.now()}:_data_day_yearly - Pas de données pour cette section:{section}, cette direction:1 et cette année:{year} /!\\/!\\/!\\"
+        )
         return
 
     for i in range(7):
@@ -411,7 +448,11 @@ def _data_day_yearly(
     row_offset = 31
     col_offset = 2
     df = statistics.get_light_numbers_yearly(
-        section, start=datetime(year, 1, 1), end=datetime(year + 1, 1, 1), direction=1
+        section,
+        start=datetime(year, 1, 1),
+        end=datetime(year + 1, 1, 1),
+        direction=1,
+        exclude_trash=True,
     )
 
     for i in range(7):
@@ -430,8 +471,12 @@ def _data_day_yearly(
     if len(section.lane_set.all()) == 2:
         row_offset = 37
         col_offset = 2
-
-        df = statistics.get_time_data_yearly(year, section, direction=2)
+        df = statistics.get_time_data_yearly(
+            year,
+            section,
+            direction=2,
+            exclude_trash=True,
+        )
 
         for i in range(7):
             day_df = df[df["date"] == i]
@@ -446,6 +491,7 @@ def _data_day_yearly(
             start=datetime(year, 1, 1),
             end=datetime(year + 1, 1, 1),
             direction=2,
+            exclude_trash=True,
         )
 
         for i in range(7):
@@ -469,28 +515,42 @@ def _data_month_yearly(
     end = datetime(year + 1, 1, 1)
 
     # Section
-    df = statistics.get_month_data(section, start, end)
-
     row_offset = 14
     col_offset = 2
+    df = statistics.get_month_data(
+        section,
+        start,
+        end,
+        exclude_trash=True,
+    )
 
     for col in df.itertuples():
         ws.cell(row=row_offset, column=col_offset + col.Index, value=col.tm)
 
     # Direction 1
-    df = statistics.get_month_data(section, start, end, direction=1)
-
     row_offset = 4
     col_offset = 2
+    df = statistics.get_month_data(
+        section,
+        start,
+        end,
+        direction=1,
+        exclude_trash=True,
+    )
 
     for col in df.itertuples():
         ws.cell(row=row_offset, column=col_offset + col.Index, value=col.tm)
 
     # Direction 2
-    df = statistics.get_month_data(section, start, end, direction=2)
-
     row_offset = 9
     col_offset = 2
+    df = statistics.get_month_data(
+        section,
+        start,
+        end,
+        direction=2,
+        exclude_trash=True,
+    )
 
     for col in df.itertuples():
         ws.cell(row=row_offset, column=col_offset + col.Index, value=col.tm)
@@ -573,8 +633,8 @@ def _data_speed(
             end=monday + timedelta(days=7),
             speed_low=range_[0],
             speed_high=range_[1],
+            exclude_trash=True,
         )
-
         for row in res:
             ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
 
@@ -590,6 +650,7 @@ def _data_speed(
                 start=monday,
                 end=monday + timedelta(days=7),
                 v=v,
+                exclude_trash=True,
             )
             for row in df.itertuples():
                 ws.cell(
@@ -599,9 +660,13 @@ def _data_speed(
         # Average speed direction 1
         row_offset = 5
         col_offset = 19
-
         df = statistics.get_average_speed_by_hour(
-            count, section, direction=1, start=monday, end=monday + timedelta(days=7)
+            count,
+            section,
+            direction=1,
+            start=monday,
+            end=monday + timedelta(days=7),
+            exclude_trash=True,
         )
         for row in df.itertuples():
             ws.cell(row=row_offset + row.Index, column=col_offset, value=row.speed)
@@ -619,8 +684,8 @@ def _data_speed(
                 end=monday + timedelta(days=7),
                 speed_low=range_[0],
                 speed_high=range_[1],
+                exclude_trash=True,
             )
-
             for row in res:
                 ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
 
@@ -636,6 +701,7 @@ def _data_speed(
                     start=monday,
                     end=monday + timedelta(days=7),
                     v=v,
+                    exclude_trash=True,
                 )
                 for row in df.itertuples():
                     ws.cell(
@@ -647,9 +713,13 @@ def _data_speed(
         # Average speed direction 2
         row_offset = 33
         col_offset = 19
-
         df = statistics.get_average_speed_by_hour(
-            count, section, direction=2, start=monday, end=monday + timedelta(days=7)
+            count,
+            section,
+            direction=2,
+            start=monday,
+            end=monday + timedelta(days=7),
+            exclude_trash=True,
         )
         for row in df.itertuples():
             ws.cell(row=row_offset + row.Index, column=col_offset, value=row.speed)
@@ -708,8 +778,8 @@ def _data_speed_yearly(
             end=end,
             speed_low=range_[0],
             speed_high=range_[1],
+            exclude_trash=True,
         )
-
         for row in res:
             ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
 
@@ -719,7 +789,13 @@ def _data_speed_yearly(
         col_offset = 16
         for i, v in enumerate(characteristic_speeds):
             df = statistics.get_characteristic_speed_by_hour(
-                None, section, direction=1, start=start, end=end, v=v
+                None,
+                section,
+                direction=1,
+                start=start,
+                end=end,
+                v=v,
+                exclude_trash=True,
             )
             for row in df.itertuples():
                 ws.cell(
@@ -729,13 +805,13 @@ def _data_speed_yearly(
         # Average speed direction 1
         row_offset = 5
         col_offset = 19
-
         df = statistics.get_average_speed_by_hour(
-            count,
+            None,
             section,
             direction=1,
             start=start,
             end=end,
+            exclude_trash=True,
         )
         for row in df.itertuples():
             ws.cell(row=row_offset + row.Index, column=col_offset, value=row.speed)
@@ -746,13 +822,14 @@ def _data_speed_yearly(
         col_offset = 2
         for i, range_ in enumerate(speed_ranges):
             res = statistics.get_speed_data_by_hour(
-                count,
+                None,
                 section,
                 direction=2,
                 start=start,
                 end=end,
                 speed_low=range_[0],
                 speed_high=range_[1],
+                exclude_trash=True,
             )
 
             for row in res:
@@ -764,7 +841,13 @@ def _data_speed_yearly(
             col_offset = 16
             for i, v in enumerate(characteristic_speeds):
                 df = statistics.get_characteristic_speed_by_hour(
-                    count, section, direction=2, start=start, end=end, v=v
+                    None,
+                    section,
+                    direction=2,
+                    start=start,
+                    end=end,
+                    v=v,
+                    exclude_trash=True,
                 )
                 for row in df.itertuples():
                     ws.cell(
@@ -776,13 +859,13 @@ def _data_speed_yearly(
             # Average speed direction 2
             row_offset = 33
             col_offset = 19
-
             df = statistics.get_average_speed_by_hour(
-                count,
+                None,
                 section,
                 direction=2,
                 start=start,
                 end=end,
+                exclude_trash=True,
             )
             for row in df.itertuples():
                 ws.cell(row=row_offset + row.Index, column=col_offset, value=row.speed)
