@@ -54,7 +54,7 @@ def _parse_and_write(
     **kwargs,
 ):
     basename = path.basename(file_path)
-    bulk_mgr = BulkCreateManager(chunk_size=1000)
+    bulk_mgr = BulkCreateManager(chunk_size=500)
     lanes = _populate_lane_dict(count)
     directions = _populate_direction_dict(count)
     cat_bins = _populate_category_dict(count)
@@ -104,6 +104,8 @@ def _parse_and_write(
                     )
 
     except Exception as e:
+        print(f"_parse_and_write - Une erreur est survenue, la categorie {row['category']} n'est probablement pas disponible"
+              " dans la classification utilisée par ce comptage !")
         raise e
 
     bulk_mgr.done()
@@ -136,23 +138,28 @@ def _parse_line_vbv1(line: str, **kwargs) -> Optional[list[dict]]:
         parsed_line["distance_front_back"] = float(line[42:46])
         parsed_line["speed"] = int(line[47:50])
         parsed_line["length"] = int(line[52:56])
-        parsed_line["category"] = int(line[60:62].strip())
+        parsed_line["category"] = int(line[60:62])
         parsed_line["height"] = line[63:65].strip()
 
         # If the speed of a vehicle is 0, we put it in the category 0
         if parsed_line["speed"] == 0:
+            print('_parse_line_vbv1 - "speed" est égal à 0 km/h !  -> véhicule passé en TRASH')
             parsed_line["category"] = 0
 
         # If the speed of a vehicle is greater than 3*max_speed or 150km/h
         # TODO: get actual speed limit of the section
         if parsed_line["speed"] > 150:
+            print(f'_parse_line_vbv1 - "speed={parsed_line["speed"]}" est supérieur à 150 kmh !  -> véhicule passé en TRASH')
             parsed_line["category"] = 0
 
     except ValueError:
         if "lane" not in parsed_line:
+            print(f'_parse_line_vbv1 - Erreur: véhicule sans voie ({line})')
             return None
         if "direction" not in parsed_line:
+            print(f'_parse_line_vbv1 - Erreur: véhicule sans direction ({line})')
             return None
+        print(f'_parse_line_vbv1 - parsed_line(!exception!): {parsed_line}')
 
     return [parsed_line]
 
