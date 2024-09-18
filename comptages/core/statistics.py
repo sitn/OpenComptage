@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 
 from pandas import DataFrame, cut
 from pytz import timezone
-from django.db.models import F, CharField, Value, Q, Sum, QuerySet
+from django.db.models import F, CharField, Value, Sum, QuerySet
 from django.db.models.functions import ExtractHour, Trunc, Concat
 
 from comptages.core import definitions
@@ -82,6 +82,7 @@ def get_time_data_yearly(
     qs = models.CountDetail.objects.filter(
         id_lane__id_section=section,
         id_category__isnull=False,
+        import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         timestamp__gte=start,
         timestamp__lt=end,
     )
@@ -310,6 +311,7 @@ def get_light_numbers(
         id_count=count,
         id_lane__id_section=section,
         id_category__isnull=False,
+        import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         timestamp__gte=start,
         timestamp__lt=end,
     )
@@ -347,6 +349,7 @@ def get_light_numbers_yearly(
     qs = models.CountDetail.objects.filter(
         id_lane__id_section=section,
         id_category__isnull=False,
+        import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         timestamp__gte=start,
         timestamp__lt=end,
     )
@@ -391,6 +394,7 @@ def get_speed_data_by_hour(
         id_lane__id_section=section,
         speed__gte=speed_low,
         speed__lt=speed_high,
+        import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         timestamp__gte=start,
         timestamp__lt=end,
     )
@@ -438,6 +442,7 @@ def get_characteristic_speed_by_hour(
     qs = models.CountDetail.objects.filter(
         id_lane__id_section=section,
         speed__isnull=False,
+        import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         timestamp__gte=start,
         timestamp__lt=end,
     )
@@ -489,6 +494,7 @@ def get_average_speed_by_hour(
     qs = models.CountDetail.objects.filter(
         id_lane__id_section=section,
         speed__isnull=False,
+        import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         timestamp__gte=start,
         timestamp__lt=end,
     )
@@ -538,6 +544,7 @@ def get_category_data_by_hour(
     qs = models.CountDetail.objects.filter(
         id_lane__id_section=section,
         id_category=category,
+        import_status=definitions.IMPORT_STATUS_DEFINITIVE,
         timestamp__gte=start,
         timestamp__lt=end,
     )
@@ -565,8 +572,7 @@ def get_category_data_by_hour(
 
 def get_special_periods(first_day, last_day) -> QuerySet[models.SpecialPeriod]:
     qs = models.SpecialPeriod.objects.filter(
-        Q((Q(start_date__lte=first_day) & Q(end_date__gte=last_day)))
-        | (Q(start_date__lte=last_day) & Q(end_date__gte=first_day))
+        start_date__lte=last_day, end_date__gte=first_day
     )
     print(f"statistics.py : get_special_periods - qs.query={str(qs.query)}")
 
@@ -617,6 +623,7 @@ def get_valid_days(year: int, section: models.Section) -> int:
         models.CountDetail.objects.filter(
             id_lane__id_section=section,
             id_category__isnull=False,
+            import_status=definitions.IMPORT_STATUS_DEFINITIVE,
             timestamp__gte=start,
             timestamp__lt=end,
         )
