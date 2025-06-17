@@ -25,6 +25,9 @@ def prepare_reports(
     print(f"{datetime.now()}: _prepare_reports: begin, folder: {file_path}")
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
+    #print(f"Debug_GL: _prepare_reports: sections_ids: {sections_ids}")
+    #print(f"Debug_GL: _prepare_reports: sections_days: {sections_days}")
+
     if template == "default":
         template_name = "template.xlsx"
         template_path = os.path.join(current_dir, os.pardir, "report", template_name)
@@ -1033,28 +1036,70 @@ def _remove_useless_sheets(count: models.Count, workbook: Workbook):
 def _t_cl(class_name):
     """Translate class name"""
 
+    if class_name == "SPCH13":
+        return "SWISS7"
+
+    if class_name == "SPCH7":
+        return "SWISS7"
+
     if class_name == "FHWA13":
         return "SWISS7"
 
     if class_name is None:
         return "Volume1"
 
-    if class_name == "SPCH13":
-        return "SWISS7"
-
     return class_name
 
 
 def _t_cat(count: models.Count, cat_id):
     """Convert categories of a class into the ones of another class e.g.
-    FHWA13 should be converted in SWISS7 in order to fill the
+    SPCH13 should be converted in SWISS7 in order to fill the
     report cells
     """
 
-    if count.id_class.name == "ARXCycle13":
-        # FIXME: implement real conversiont between ARX Cycle and SWISS7 or 10
-        new_hour = [0] * 7
-        return new_hour
+    if count.id_class.name == "SPCH13":
+        conv = {
+            0: 0,
+            1: 2,
+            2: 3,
+            3: 3,
+            4: 4,
+            5: 4,
+            6: 4,
+            7: 1,
+            8: 5,
+            9: 6,
+            10: 7,
+            11: 6,
+            12: 6,
+            13: 7,
+        }
+        return conv[cat_id]
+
+    if count.id_class.name == "SPCH7":
+        conv = {
+            0: 0,
+            1: 2,
+            2: 3,
+            3: 4,
+            4: 1,
+            5: 5,
+            6: 6,
+            7: 7,
+        }
+        return conv[cat_id]
+
+    if count.id_class.name == "EUR6":
+        conv = {
+            0: 0,
+            1: 2,
+            2: 3,
+            3: 4,
+            4: 5,
+            5: 6,
+            6: 1,
+        }
+        return conv[cat_id]
 
     if count.id_class.name == "FHWA13":
         conv = {
@@ -1076,36 +1121,10 @@ def _t_cat(count: models.Count, cat_id):
         }
         return conv[cat_id]
 
-    if count.id_class.name == "SPCH13":
-        conv = {
-            0: 0,
-            1: 2,
-            2: 3,
-            3: 3,
-            4: 4,
-            5: 4,
-            6: 4,
-            7: 1,
-            8: 5,
-            9: 6,
-            10: 7,
-            11: 6,
-            12: 6,
-            13: 7,
-        }
-        return conv[cat_id]
-
-    if count.id_class.name == "EUR6":
-        conv = {
-            0: 0,
-            1: 2,
-            2: 3,
-            3: 4,
-            4: 5,
-            5: 6,
-            6: 1,
-        }
-        return conv[cat_id]
+    if count.id_class.name == "ARXCycle13":
+        # FIXME: implement real conversiont between ARX Cycle and SWISS7 or 10
+        new_hour = [0] * 7
+        return new_hour
 
     return cat_id if cat_id < 11 else 10
 
