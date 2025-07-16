@@ -55,7 +55,7 @@ def get_time_data(
         .annotate(thm=Sum("times"))
         .values("import_status", "date", "hour", "thm")
     )
-    print(f"statistics.py : get_time_data - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_time_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     if not df.empty:
@@ -97,9 +97,9 @@ def get_time_data_yearly(
         qs = qs.filter(id_lane__direction=direction)
 
     if not qs.exists():
-        print(
-            f"statistics.py : get_time_data_yearly - Nothing found for Year: {year}, Section: {section}, Lane: {lane}, Direction: {direction}."
-        )
+        # print(
+            # f"statistics.py : get_time_data_yearly - Nothing found for Year: {year}, Section: {section}, Lane: {lane}, Direction: {direction}."
+        # )
         return None
 
     # Vehicles by day and hour
@@ -115,7 +115,7 @@ def get_time_data_yearly(
         print(
             f"statistics.py : get_time_data_yearly - Nothing found !!! for Year: {year}. Section: {section}. Lane: {lane}. Direction: {direction}. !!!)"
         )
-    print(f"statistics.py : get_time_data_yearly - qsa.query={str(qs.query)}")
+    # print(f"statistics.py : get_time_data_yearly - qsa.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     if not df.empty:
@@ -171,7 +171,7 @@ def get_day_data(
         .annotate(tj=Sum("times"))
         .values("date", "tj", "import_status")
     )
-    print(f"statistics.py : get_day_data - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_day_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     mean = 0
@@ -221,7 +221,7 @@ def get_category_data(
         .order_by("cat_code")
         .values("cat_name", "cat_code", "cat_name_code", "value")
     )
-    print(f"statistics.py : get_category_data - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_category_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     return df
@@ -251,7 +251,7 @@ def get_speed_data(
     if exclude_trash:
         qs = qs.exclude(id_category__trash=True)
 
-    print(f"statistics.py : get_speed_data - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_speed_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs.values("speed", "times", "import_status"))
     if df.empty:
@@ -330,7 +330,7 @@ def get_light_numbers(
         .annotate(value=Sum("times"))
         .values_list("id_category__light", "value")
     )
-    print(f"statistics.py : get_light_numbers - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_light_numbers - qs.query={str(qs.query)}")
 
     res = {}
     for r in qs:
@@ -365,7 +365,7 @@ def get_light_numbers_yearly(
 
     qs = qs.annotate(date=Trunc("timestamp", "day"))
     qs = qs.values("date", "id_category__light").annotate(value=Sum("times"))
-    print(f"statistics.py : get_light_numbers_yearly - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_light_numbers_yearly - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     df = df.groupby([df["date"].dt.dayofweek, "id_category__light"]).value.sum()
@@ -418,7 +418,7 @@ def get_speed_data_by_hour(
         .values("hour", "value")
         .values_list("hour", "value")
     )
-    print(f"statistics.py : get_speed_data_by_hour - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_speed_data_by_hour - qs.query={str(qs.query)}")
 
     return qs
 
@@ -464,9 +464,9 @@ def get_characteristic_speed_by_hour(
         .order_by("hour", "speed")
         .values("hour", "speed")
     )
-    print(
-        f"statistics.py : get_characteristic_speed_by_hour - qs.query={str(qs.query)}"
-    )
+    # print(
+        # f"statistics.py : get_characteristic_speed_by_hour - qs.query={str(qs.query)}"
+    # )
 
     df = DataFrame.from_records(qs.values("hour", "speed"))
     if not df.empty:
@@ -516,7 +516,7 @@ def get_average_speed_by_hour(
         .order_by("hour", "speed")
         .values("hour", "speed")
     )
-    print(f"statistics.py : get_average_speed_by_hour - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_average_speed_by_hour - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs.values("hour", "speed"))
     if not df.empty:
@@ -565,7 +565,7 @@ def get_category_data_by_hour(
         .values("hour", "value")
         .values_list("hour", "value")
     )
-    print(f"statistics.py : get_category_data_by_hour - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_category_data_by_hour - qs.query={str(qs.query)}")
 
     return qs
 
@@ -574,7 +574,7 @@ def get_special_periods(first_day, last_day) -> QuerySet[models.SpecialPeriod]:
     qs = models.SpecialPeriod.objects.filter(
         start_date__lte=last_day, end_date__gte=first_day
     )
-    print(f"statistics.py : get_special_periods - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_special_periods - qs.query={str(qs.query)}")
 
     return qs
 
@@ -604,7 +604,7 @@ def get_month_data(
     if direction is not None:
         qs = qs.filter(id_lane__direction=direction)
 
-    print(f"statistics.py : get_month_data - qs.query={str(qs.query)}")
+    # print(f"statistics.py : get_month_data - qs.query={str(qs.query)}")
 
     df = DataFrame.from_records(qs)
     return df
@@ -633,7 +633,7 @@ def get_valid_days(year: int, section: models.Section) -> int:
         .order_by("date")
         .values("date", "hour", "tj")
     )
-    print(f"statistics.py : get_valid_days - iterator.query={str(iterator.query)}")
+    # print(f"statistics.py : get_valid_days - iterator.query={str(iterator.query)}")
 
     def count_valid_blocks(acc: dict, item: dict) -> dict[str, int]:
         date = item["date"]
