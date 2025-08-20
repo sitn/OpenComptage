@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('comptages', '0030_existing_classes_values'),
+        ("comptages", "0030_existing_classes_values"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='SensorTypeSection',
+            name="SensorTypeSection",
         ),
     ]
