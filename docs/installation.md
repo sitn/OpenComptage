@@ -64,12 +64,12 @@ If starting from zero, restore a backup of opencomptages database or follow [Dev
 
 1. Make sure Django will be aware of GDAL by setting `GDAL_LIBRARY_PATH` environment variable in QGIS settings.
 You'll have to find the GDAL dll path in the `bin` folder of your QGIS installation.
-For instance `C:/Program Files/QGIS 3.36.3/bin/gdal309.dll`.
+For instance `C:\Program Files\QGIS 3.40.9\bin\gdal311.dll`.
 
 2. Look into `requirements.txt` file and install dependencies by opening QGIS > Python Console:
 
 ```python
-subprocess.check_call(['python', '-m', 'pip', 'install', '<package_1>', '<package_n*>'])
+subprocess.check_call(['python', '-m', 'pip', 'install', 'django', 'icalendar', 'nose2', 'numpy', 'openpyxl', 'pandas', 'plotly==4.14.3', 'psycopg2-binary'])
 ```
 
 3. Deploy to your custom qgis plugin repository:
