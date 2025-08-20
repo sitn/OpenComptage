@@ -201,6 +201,8 @@ class StatisticsTest(TransactionTestCase):
         )
 
         importer.import_file(utils.test_data_path("00056365.A00"), count)
+        models.CountDetail.objects.update(import_status=0)
+        print("Forced import status to 'definitive' for testing purposes")
 
         section = models.Section.objects.filter(
             lane__id_installation__count=count

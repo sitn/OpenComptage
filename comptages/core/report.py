@@ -25,6 +25,9 @@ def prepare_reports(
     print(f"{datetime.now()}: _prepare_reports: begin, folder: {file_path}")
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # print(f"Debug_GL: _prepare_reports: sections_ids: {sections_ids}")
+    # print(f"Debug_GL: _prepare_reports: sections_days: {sections_days}")
+
     if template == "default":
         template_name = "template.xlsx"
         template_path = os.path.join(current_dir, os.pardir, "report", template_name)
@@ -988,33 +991,9 @@ def _data_category_yearly(
 
 
 def _remove_useless_sheets(count: models.Count, workbook: Workbook):
-    class_name = _t_cl(count.id_class.name)
 
-    if class_name == "SWISS10":
-        to_remove_from_spreadsheet = [
-            "SWISS7_H",
-            "SWISS7_G",
-            "EUR6_H",
-            "EUR6_G",
-        ]
-    elif class_name == "SWISS7":
-        to_remove_from_spreadsheet = ["SWISS10_H", "SWISS10_G", "EUR6_H", "EUR6_G"]
-    elif class_name == "EUR6":
-        to_remove_from_spreadsheet = [
-            "SWISS10_H",
-            "SWISS10_G",
-            "SWISS7_H",
-            "SWISS7_G",
-        ]
-    elif class_name == "Volume1":
-        to_remove_from_spreadsheet = [
-            "SWISS10_H",
-            "SWISS10_G",
-            "SWISS7_H",
-            "SWISS7_G",
-            "EUR6_H",
-            "EUR6_G",
-        ]
+    if count.id_class.tabs_to_delete is not None:
+        to_remove_from_spreadsheet = count.id_class.tabs_to_delete.split()
     else:
         to_remove_from_spreadsheet = []
 
@@ -1030,84 +1009,16 @@ def _remove_useless_sheets(count: models.Count, workbook: Workbook):
             continue
 
 
-def _t_cl(class_name):
-    """Translate class name"""
-
-    if class_name == "FHWA13":
-        return "SWISS7"
-
-    if class_name is None:
-        return "Volume1"
-
-    if class_name == "SPCH13":
-        return "SWISS7"
-
-    return class_name
-
-
 def _t_cat(count: models.Count, cat_id):
     """Convert categories of a class into the ones of another class e.g.
-    FHWA13 should be converted in SWISS7 in order to fill the
+    SPCH13 should be converted in SWISS7 in order to fill the
     report cells
     """
 
-    if count.id_class.name == "ARXCycle13":
-        # FIXME: implement real conversiont between ARX Cycle and SWISS7 or 10
-        new_hour = [0] * 7
-        return new_hour
+    if count.id_class and count.id_class.to_be_converted:
+        return eval("count.id_class.cat_" + ("0" + str(cat_id))[-2:])
 
-    if count.id_class.name == "FHWA13":
-        conv = {
-            0: 0,
-            1: 2,
-            2: 3,
-            3: 3,
-            4: 4,
-            5: 4,
-            6: 4,
-            7: 1,
-            8: 5,
-            9: 7,
-            10: 6,
-            11: 7,
-            12: 7,
-            13: 7,
-            14: 7,
-        }
-        return conv[cat_id]
-
-    if count.id_class.name == "SPCH13":
-        conv = {
-            0: 0,
-            1: 2,
-            2: 3,
-            3: 3,
-            4: 4,
-            5: 4,
-            6: 4,
-            7: 1,
-            8: 5,
-            9: 6,
-            10: 7,
-            11: 6,
-            12: 6,
-            13: 7,
-        }
-        return conv[cat_id]
-
-    if count.id_class.name == "EUR6":
-        conv = {
-            0: 0,
-            1: 2,
-            2: 3,
-            3: 4,
-            4: 5,
-            5: 6,
-            6: 1,
-        }
-        return conv[cat_id]
-
-    return cat_id if cat_id < 11 else 10
+    return cat_id if cat_id < 11 else 0
 
 
 def _is_aggregate(count):
