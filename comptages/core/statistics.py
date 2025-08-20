@@ -97,9 +97,6 @@ def get_time_data_yearly(
         qs = qs.filter(id_lane__direction=direction)
 
     if not qs.exists():
-        # print(
-            # f"statistics.py : get_time_data_yearly - Nothing found for Year: {year}, Section: {section}, Lane: {lane}, Direction: {direction}."
-        # )
         return None
 
     # Vehicles by day and hour
@@ -465,7 +462,7 @@ def get_characteristic_speed_by_hour(
         .values("hour", "speed")
     )
     # print(
-        # f"statistics.py : get_characteristic_speed_by_hour - qs.query={str(qs.query)}"
+    # f"statistics.py : get_characteristic_speed_by_hour - qs.query={str(qs.query)}"
     # )
 
     df = DataFrame.from_records(qs.values("hour", "speed"))

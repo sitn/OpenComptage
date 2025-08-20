@@ -25,8 +25,8 @@ def prepare_reports(
     print(f"{datetime.now()}: _prepare_reports: begin, folder: {file_path}")
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    #print(f"Debug_GL: _prepare_reports: sections_ids: {sections_ids}")
-    #print(f"Debug_GL: _prepare_reports: sections_days: {sections_days}")
+    # print(f"Debug_GL: _prepare_reports: sections_ids: {sections_ids}")
+    # print(f"Debug_GL: _prepare_reports: sections_days: {sections_days}")
 
     if template == "default":
         template_name = "template.xlsx"
@@ -1015,8 +1015,8 @@ def _t_cat(count: models.Count, cat_id):
     report cells
     """
 
-    if count.id_class.to_be_converted :
-        return eval('count.id_class.cat_' + ('0'+str(cat_id))[-2:])
+    if count.id_class and count.id_class.to_be_converted:
+        return eval("count.id_class.cat_" + ("0" + str(cat_id))[-2:])
 
     return cat_id if cat_id < 11 else 0
 
