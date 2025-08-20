@@ -329,20 +329,6 @@ class SensorTypeModel(models.Model):
         db_table = "sensor_type_model"
 
 
-class SensorTypeSection(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    geometry = models.GeometryField(blank=True, null=True, srid=2056)
-    id_sensor_type = models.ForeignKey(
-        SensorType, models.DO_NOTHING, db_column="id_sensor_type", blank=True, null=True
-    )
-    id_section = models.ForeignKey(
-        Section, models.DO_NOTHING, db_column="id_section", blank=True, null=True
-    )
-
-    class Meta:
-        db_table = "sensor_type_section"
-
-
 class SpecialPeriod(models.Model):
     id = models.BigAutoField(primary_key=True)
     start_date = models.DateField()
