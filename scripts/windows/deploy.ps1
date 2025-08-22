@@ -16,6 +16,8 @@ if (Test-Path $dotenvPath) {
     $stream.close()
 }
 
+# Get version from git tag and set it in metadata.txt
+$newVersion = git describe --abbrev=0 --tags
 $name = "comptages"
 $source = "..\..\$name"
 $qgis_repo_conf = "$qgis_repo\sitnqgis.xml"
@@ -23,18 +25,17 @@ $destination = "$qgis_repo\$name"
 
 # Deploy qgis plugin
 
-if (Test-path "$destination.zip") {Remove-item "$destination.zip"}
+if (Test-path "$destination.$newVersion.zip") {Remove-item "$destination.$newVersion.zip"}
 if (Test-path $destination) {Remove-Item -Force -Recurse $destination}
-# Get version from git tag and set it in metadata.txt
-$newVersion = git describe --abbrev=0 --tags
+
 (Get-Content $source\metadata.txt) -replace '^version=.+',"version=$newVersion" | Set-Content $source\metadata.txt
 Copy-Item -Path $source -Recurse -Destination "$destination\$name" -Container
 Add-Type -assembly "system.io.compression.filesystem"
-[io.compression.zipfile]::CreateFromDirectory($destination, "$destination.zip")
+[io.compression.zipfile]::CreateFromDirectory($destination, "$destination.$newVersion.zip")
 Remove-Item -Force -Recurse $destination
 git checkout $source\metadata.txt
 # Update plugin metadata in repository
-if (Test-path "$destination.zip") {
+if (Test-path "$destination.$newVersion.zip") {
     [xml]$xml = Get-Content $qgis_repo_conf
     $element = $xml.SelectSingleNode("//pyqgis_plugin[@name='$name']")
     $OldVersion = $element.GetAttribute("version")
