@@ -48,7 +48,7 @@ Activate venv and load dotenv file
 
 ```powershell
 ./venv/bin/activate
-./load-env.ps1
+./load_dotenv.ps1
 ```
 
 You can edit the code and use plugin reloader extension to see the changes
