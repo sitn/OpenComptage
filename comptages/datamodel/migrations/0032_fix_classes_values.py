@@ -2,6 +2,7 @@
 
 from django.db import migrations
 
+
 def fix_classes_values(apps, schema_editor):
     """Sets values for existing classes"""
     ClassModel = apps.get_model("comptages", "Class")
@@ -9,7 +10,14 @@ def fix_classes_values(apps, schema_editor):
     updates = [
         {
             "name": "Volume1",
-            "tabs_to_delete": ["SWISS10_H", "SWISS10_G", "SWISS7_H", "SWISS7_G", "EUR6_H", "EUR6_G"],
+            "tabs_to_delete": [
+                "SWISS10_H",
+                "SWISS10_G",
+                "SWISS7_H",
+                "SWISS7_G",
+                "EUR6_H",
+                "EUR6_G",
+            ],
         },
         {
             "name": "SWISS7",
@@ -33,7 +41,7 @@ def fix_classes_values(apps, schema_editor):
             "cat_12": 7,
             "cat_13": 7,
             "tabs_to_delete": ["SWISS10_H", "SWISS10_G", "EUR6_H", "EUR6_G"],
-            "to_be_converted": True
+            "to_be_converted": True,
         },
         {
             "name": "SPCH13",
@@ -49,7 +57,7 @@ def fix_classes_values(apps, schema_editor):
             "cat_12": 6,
             "cat_13": 7,
             "tabs_to_delete": ["SWISS10_H", "SWISS10_G", "EUR6_H", "EUR6_G"],
-            "to_be_converted": True
+            "to_be_converted": True,
         },
         {
             "name": "EUR6",
@@ -58,7 +66,7 @@ def fix_classes_values(apps, schema_editor):
             "cat_05": 6,
             "cat_06": 1,
             "tabs_to_delete": ["SWISS10_H", "SWISS10_G", "SWISS7_H", "SWISS7_G"],
-            "to_be_converted": True
+            "to_be_converted": True,
         },
         {
             "name": "SPCH7",
@@ -68,7 +76,7 @@ def fix_classes_values(apps, schema_editor):
             "cat_06": 6,
             "cat_07": 7,
             "tabs_to_delete": ["SWISS10_H", "SWISS10_G", "EUR6_H", "EUR6_G"],
-            "to_be_converted": True
+            "to_be_converted": True,
         },
     ]
 
@@ -82,10 +90,11 @@ def fix_classes_values(apps, schema_editor):
         except ClassModel.DoesNotExist:
             pass
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('comptages', '0031_delete_sensortypesection'),
+        ("comptages", "0031_delete_sensortypesection"),
     ]
 
     operations = [
