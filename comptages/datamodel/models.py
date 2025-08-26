@@ -4,6 +4,7 @@
 
 import uuid
 from django.contrib.gis.db import models
+from django.contrib.postgres.fields import ArrayField
 
 
 class Brand(models.Model):
@@ -30,7 +31,9 @@ class Class(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.TextField()
     description = models.TextField()
-    tabs_to_delete = models.CharField(max_length=90, null=True)
+    tabs_to_delete = ArrayField(
+        models.CharField(max_length=90, null=True), default=list
+    )
     to_be_converted = models.BooleanField(default=False)
     cat_00 = models.SmallIntegerField(default=0)
     cat_01 = models.SmallIntegerField(default=0)

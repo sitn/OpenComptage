@@ -2,7 +2,7 @@
 name=Comptages
 qgisMinimumVersion=3.18
 description=Canton Neuchâtel's traffic measures management
-version=2.2.0
+version=2.2.2
 author=OPENGIS.ch GmbH
 email=info@opengis.ch
 

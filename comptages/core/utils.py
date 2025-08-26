@@ -76,4 +76,3 @@ def to_time_aware_utc(d: Union[datetime, date]) -> datetime:
         return d.astimezone(pytz.timezone("UTC"))
     if isinstance(d, date):
         return to_time_aware_utc(datetime.combine(d, time()))
-    raise ValueError(f"Expected datetime or date, got {type(d)}")
