@@ -992,10 +992,9 @@ def _data_category_yearly(
 
 def _remove_useless_sheets(count: models.Count, workbook: Workbook):
 
-    if count.id_class.tabs_to_delete is not None:
-        to_remove_from_spreadsheet = count.id_class.tabs_to_delete.split()
-    else:
-        to_remove_from_spreadsheet = []
+    to_remove_from_spreadsheet = []
+    if count.id_class and count.id_class.tabs_to_delete:
+        to_remove_from_spreadsheet = count.id_class.tabs_to_delete
 
     if _is_aggregate(count):
         to_remove_from_spreadsheet.append("Vit_Hd")
@@ -1003,10 +1002,8 @@ def _remove_useless_sheets(count: models.Count, workbook: Workbook):
         to_remove_from_spreadsheet.append("Vit_H")
 
     for key in to_remove_from_spreadsheet:
-        try:
+        if workbook[key]:
             workbook.remove(workbook[key])
-        except KeyError:
-            continue
 
 
 def _t_cat(count: models.Count, cat_id):
