@@ -1002,7 +1002,7 @@ def _remove_useless_sheets(count: models.Count, workbook: Workbook):
         to_remove_from_spreadsheet.append("Vit_H")
 
     for key in to_remove_from_spreadsheet:
-        if workbook[key]:
+        if key in workbook.sheetnames:
             workbook.remove(workbook[key])
 
 
