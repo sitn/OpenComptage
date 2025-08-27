@@ -994,7 +994,7 @@ def _remove_useless_sheets(count: models.Count, workbook: Workbook):
 
     to_remove_from_spreadsheet = []
     if count.id_class and count.id_class.tabs_to_delete:
-        to_remove_from_spreadsheet = count.id_class.tabs_to_delete
+        to_remove_from_spreadsheet = count.id_class.tabs_to_delete.copy()
 
     if _is_aggregate(count):
         to_remove_from_spreadsheet.append("Vit_Hd")
