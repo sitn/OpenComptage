@@ -751,7 +751,7 @@ class Comptages(QObject):
                 qs.delete()
                 call_command("tjmreset")
                 QgsMessageLog.logMessage(
-                    "Les TJMs ont été réinitialisés; rouvrir cette fenêtre pour afficher les données actualisées!",
+                    "Les données ont été effacées et les TJMs ont été réinitialisés; rouvrir la table des attributs pour afficher les données actualisées!",
                     "Comptages",
                     Qgis.Info,
                 )
