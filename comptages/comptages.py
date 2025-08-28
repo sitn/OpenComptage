@@ -483,8 +483,21 @@ class Comptages(QObject):
         if not file:
             return
 
+        QgsMessageLog.logMessage(
+            "{} - Export config file {} started".format(
+                datetime.now(), os.path.basename(file)
+            ),
+            "Comptages",
+            Qgis.Info,
+        )
         config_creator.write_file(file)
-        push_info("Written config file {}".format(file))
+        QgsMessageLog.logMessage(
+            "{} - Export config file {} ended".format(
+                datetime.now(), os.path.basename(file)
+            ),
+            "Comptages",
+            Qgis.Info,
+        )
 
     def do_import_single_file_action(self, count_id):
         file_dialog = QFileDialog()
@@ -497,9 +510,23 @@ class Comptages(QObject):
         if not file_path:
             return
 
+        QgsMessageLog.logMessage(
+            "{} - Import single file {} started".format(
+                datetime.now(), os.path.basename(file_path)
+            ),
+            "Comptages",
+            Qgis.Info,
+        )
         self.tm.allTasksFinished.connect(partial(self.all_tasks_finished, "import"))
 
         self.tm.addTask(self.import_file(file_path, count_id))
+        QgsMessageLog.logMessage(
+            "{} - Import single file {} endeed".format(
+                datetime.now(), os.path.basename(file_path)
+            ),
+            "Comptages",
+            Qgis.Info,
+        )
 
     def do_generate_report_action(self, count_id):
         QgsMessageLog.logMessage(
@@ -616,10 +643,11 @@ class Comptages(QObject):
         plan_creator = PlanCreator()
         file_dialog = QFileDialog()
         file_dialog.setDefaultSuffix("*.PDF")
+        installation_name = self.layers.get_installation_name_of_count(count_id)
         title = "Exporter plan de pose"
         path = os.path.join(
             self.settings.value("config_export_directory"),
-            "{}.pdf".format("plan_de_pose"),
+            "plan_de_pose_{}.pdf".format(installation_name),
         )
         file = QFileDialog.getSaveFileName(
             file_dialog, title, path, "Config file (*.PDF)"
@@ -628,6 +656,13 @@ class Comptages(QObject):
         if not file:
             return
 
+        QgsMessageLog.logMessage(
+            "{} - Export plan file {} started".format(
+                datetime.now(), os.path.basename(file)
+            ),
+            "Comptages",
+            Qgis.Info,
+        )
         # Highlight the current sections and installation in the layout
         previous_highlightes_sections = self.layers.highlighted_sections
         self.layers.highlighted_sections = self.layers.get_section_ids_of_count(
@@ -646,6 +681,13 @@ class Comptages(QObject):
             QgsProject.instance(), "highlighted_installation", ""
         )
         self.layers.layers["section"].triggerRepaint()
+        QgsMessageLog.logMessage(
+            "{} - Export plan file {} ended".format(
+                datetime.now(), os.path.basename(file)
+            ),
+            "Comptages",
+            Qgis.Info,
+        )
 
     def do_generate_chart_action(self, count_id):
         QgsMessageLog.logMessage(
