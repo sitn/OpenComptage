@@ -1,4 +1,5 @@
 # Plugin QGIS OpenComptage
+
 ## Barre d'outils
 Le plugin, une fois installé, ajoute à l'interface QGIS une barre d'outils
 composée de plusieurs boutons qui permettent d'effectuer différentes
