@@ -17,8 +17,8 @@ Now `pip-compile --upgrade` should work.
 ## Data model
 The data model has been created to easily allow to add functionality to the product
 e.g. adding new vehicle classes and to be as simple as possible and easily
-usable into QGIS. It is flexible enough to support natively all the current
-special cases without write special management code.
+usable into QGIS. It is flexible enough to natively support all the current
+special cases without having to write special management code.
 
 The data model is created with `pgmodeler` and is exported into an sql script
 used by `create_db.sh` script. To create a new sql from the pgmodeler's model,
@@ -26,7 +26,7 @@ run the script `create_data_model_sql_script.sh`.
 
 <figure>
   <img src="../assets/data_model.png" width="800" />
-  <figcaption>Data model</figcaption>
+  <figcaption>Data model (mario)</figcaption>
 </figure>
 
 ## Repository structure

@@ -60,7 +60,7 @@ def get_time_data(
     df = DataFrame.from_records(qs)
     if not df.empty:
         df["date"] = df["date"].dt.strftime("%a %d.%m.%Y")
-        df["import_status"].replace({0: "Existant", 1: "Nouveau"}, inplace=True)
+        df.replace({"import_status": {0: "Existant", 1: "Nouveau"}}, inplace=True)
 
     return df
 
@@ -174,7 +174,7 @@ def get_day_data(
     mean = 0
     if not df.empty:
         mean = df["tj"].mean()
-        df["import_status"].replace({0: "Existant", 1: "Nouveau"}, inplace=True)
+        df.replace({"import_status": {0: "Existant", 1: "Nouveau"}}, inplace=True)
 
     return df, mean
 
@@ -284,7 +284,7 @@ def get_speed_data(
     df = df.rename(columns={"speed": "speedNP"})
 
     df = df.reset_index(col_fill="NPLA_")
-    df["import_status"].replace({0: "Existant", 1: "Nouveau"}, inplace=True)
+    df.replace({"import_status": {0: "Existant", 1: "Nouveau"}}, inplace=True)
 
     return df
 
