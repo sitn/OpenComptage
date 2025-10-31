@@ -64,5 +64,5 @@ mkdocs serve
 Build the docs:
 
 ```
-
+mkdocs build
 ```
