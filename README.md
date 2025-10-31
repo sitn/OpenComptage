@@ -53,3 +53,16 @@ Activate venv and load dotenv file
 
 You can edit the code and use plugin reloader extension to see the changes
 
+
+# Docs
+
+```powershell
+pip install mkdocs mkdocs-material
+mkdocs serve
+```
+
+Build the docs:
+
+```
+
+```
