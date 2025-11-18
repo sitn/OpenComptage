@@ -64,40 +64,50 @@ class Comptages(QObject):
 
         self.create_new_action = QAction(
             QIcon(":/plugins/Comptages/images/measure.png"),
-            "Créer un nouveau comptage",
+            "Création d'un comptage",
             None,
         )
 
         self.select_edit_action = QAction(
             QIcon(":/plugins/Comptages/images/select_edit.png"),
-            "Modifier comptage",
+            "Modification d'un comptage",
             None,
         )
 
         self.import_files_action = QAction(
-            QIcon(":/plugins/Comptages/images/import.png"), "Importation", None
+            QIcon(":/plugins/Comptages/images/import.png"),
+            "Importation de données",
+            None,
         )
 
         self.validate_imported_files = QAction(
-            QIcon(":/plugins/Comptages/images/validate.png"), "Validation", None
+            QIcon(":/plugins/Comptages/images/validate.png"),
+            "Validation de données",
+            None,
         )
 
         self.filter_action = QAction(
-            QIcon(":/plugins/Comptages/images/filter.png"), "Filtrer", None
+            QIcon(":/plugins/Comptages/images/filter.png"),
+            "Filtrage",
+            None,
         )
 
         self.yearly_report_action = QAction(
-            QIcon(":/plugins/Comptages/images/filled_file.png"), "Rapport annuel", None
+            QIcon(":/plugins/Comptages/images/filled_file.png"),
+            "Rapport annuel",
+            None,
         )
 
         self.import_ics_action = QAction(
             QIcon(":/plugins/Comptages/images/calendar.png"),
-            "Importer fichier ics",
+            "Importation fichier ics",
             None,
         )
 
         self.settings_action = QAction(
-            QIcon(":/plugins/Comptages/images/settings.png"), "Réglages", None
+            QIcon(":/plugins/Comptages/images/settings.png"),
+            "Réglages",
+            None
         )
 
         self.connect_db_action.triggered.connect(self.do_connect_db_action)
@@ -403,7 +413,7 @@ class Comptages(QObject):
             clazz = dlg.classi.currentText()
 
             file_dialog = QFileDialog()
-            title = "Exporter un rapport"
+            title = "Générer le rapport annuel"
             path = self.settings.value("report_export_directory")
             file_path = QFileDialog.getExistingDirectory(file_dialog, title, path)
 
@@ -471,10 +481,10 @@ class Comptages(QObject):
 
         file_dialog = QFileDialog()
         file_dialog.setDefaultSuffix("*.CMD")
-        title = "Exporter la configuration"
+        title = "Générer le fichier de configurationn"
         path = os.path.join(
             self.settings.value("config_export_directory"),
-            "{}.CMD".format(installation_name),
+            "{}.cmd".format(installation_name),
         )
         file = QFileDialog.getSaveFileName(
             file_dialog, title, path, "Config file (*.CMD)"
@@ -501,7 +511,7 @@ class Comptages(QObject):
 
     def do_import_single_file_action(self, count_id):
         file_dialog = QFileDialog()
-        title = "Importation"
+        title = "Importer un fichier de données"
         path = self.settings.value("data_import_directory")
         file_path = QFileDialog.getOpenFileName(
             file_dialog, title, path, "Data file (*.A?? *.aV? *.I?? *.V?? *.txt)"
@@ -591,7 +601,7 @@ class Comptages(QObject):
                 )
                 return
 
-            title = "Exporter un rapport"
+            title = "Générer les rapports hebdomadaires"
             path = self.settings.value("report_export_directory")
             file_path = QFileDialog.getExistingDirectory(file_dialog, title, path)
 
@@ -644,7 +654,7 @@ class Comptages(QObject):
         file_dialog = QFileDialog()
         file_dialog.setDefaultSuffix("*.PDF")
         installation_name = self.layers.get_installation_name_of_count(count_id)
-        title = "Exporter plan de pose"
+        title = "Générer le plan de pose"
         path = os.path.join(
             self.settings.value("config_export_directory"),
             "plan_de_pose_{}.pdf".format(installation_name),
