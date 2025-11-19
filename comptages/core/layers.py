@@ -297,7 +297,7 @@ class Layers(QObject):
 
         action = QgsAction(
             QgsAction.GenericPython,
-            "Exporter la configuration",
+            "Générer le fichier de configuration",
             (
                 "from qgis.utils import plugins\n"
                 "plugins['comptages'].do_export_configuration_action([% attribute( $currentfeature, 'id' ) %])"
@@ -308,7 +308,7 @@ class Layers(QObject):
 
         action = QgsAction(
             QgsAction.GenericPython,
-            "Importation",
+            "Importer un fichier de données",
             (
                 "from qgis.utils import plugins\n"
                 "plugins['comptages'].do_import_single_file_action([% attribute( $currentfeature, 'id' ) %])"
@@ -319,18 +319,7 @@ class Layers(QObject):
 
         action = QgsAction(
             QgsAction.GenericPython,
-            "Creer un rapport",
-            (
-                "from qgis.utils import plugins\n"
-                "plugins['comptages'].do_generate_report_action([% attribute( $currentfeature, 'id' ) %])"
-            ),
-        )
-        action.setActionScopes(["Feature"])
-        action_manager.addAction(action)
-
-        action = QgsAction(
-            QgsAction.GenericPython,
-            "Creer un plan",
+            "Générer le plan de pose",
             (
                 "from qgis.utils import plugins\n"
                 "plugins['comptages'].do_export_plan_action([% attribute( $currentfeature, 'id' ) %])"
@@ -341,10 +330,21 @@ class Layers(QObject):
 
         action = QgsAction(
             QgsAction.GenericPython,
-            "Générer les graphiques",
+            "Afficher les graphiques",
             (
                 "from qgis.utils import plugins\n"
                 "plugins['comptages'].do_generate_chart_action([% attribute( $currentfeature, 'id' ) %])"
+            ),
+        )
+        action.setActionScopes(["Feature"])
+        action_manager.addAction(action)
+
+        action = QgsAction(
+            QgsAction.GenericPython,
+            "Générer les rapports hebdomadaires",
+            (
+                "from qgis.utils import plugins\n"
+                "plugins['comptages'].do_generate_report_action([% attribute( $currentfeature, 'id' ) %])"
             ),
         )
         action.setActionScopes(["Feature"])
@@ -780,7 +780,7 @@ class Layers(QObject):
     def write_special_period(
         self, start_date, end_date, description, entity, influence
     ):
-        """Insert into special_period only if it is not altready present"""
+        """Insert into special_period only if it is not already present"""
 
         self.init_db_connection()
         query = QSqlQuery(self.db)
@@ -798,7 +798,14 @@ class Layers(QObject):
             )
         )
 
+        # print(f'Debug_GL: layers.write_special_period: query_str={query_str}')
         query.exec_(query_str)
+        if query.result().numRowsAffected()==0:
+            print('Debug_GL: Row not inserted !')
+            if len(query.result().lastError().nativeErrorCode())==0:
+                print('Debug_GL: Without any error and thow probably because it was already there !!')
+            else:
+                print(f'Debug_GL: With this error code:{query.result().lastError().nativeErrorCode()} 	and that error text:\n{query.result().lastError().text()}')
 
     def get_special_period(self, special_period_id):
         request = QgsFeatureRequest().setFilterExpression(

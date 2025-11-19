@@ -28,7 +28,7 @@ class SelectSectionsToReport(QDialog):
         self.max_selected = len(sections_ids) * len(mondays)
         self.setMinimumWidth(550)
         self.setWindowTitle(
-            "Please select the sections and dates to include in the report..."
+            "Générer les rapports hebdomadaires"
         )
 
         # Parent layout
@@ -40,6 +40,12 @@ class SelectSectionsToReport(QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
+        # Explanation
+        self.explanation = QLabel()
+        explanation_text = "Merci de sélectionner chaque tronçons et dates pour lesquels un rapport hebdomadaire doit être généré."
+        self.explanation.setText(explanation_text)
+        self.layout.addWidget(self.explanation)
+
         # Create `all` and `none` selectors only if there are several sections
         if len(sections_ids) > 1:
             # Radio: all
@@ -47,7 +53,7 @@ class SelectSectionsToReport(QDialog):
             self.all_selector.setChecked(True)
             self.all_selector.toggled.connect(partial(self.select_all_none, "all"))
             self.all_selector_label = QLabel()
-            self.all_selector_label.setText("Select all")
+            self.all_selector_label.setText("Tout sélectionner")
             self.all_selector_label.setBuddy(self.all_selector)
             self.layout.addWidget(self.all_selector_label)
             self.layout.addWidget(self.all_selector)
@@ -56,7 +62,7 @@ class SelectSectionsToReport(QDialog):
             self.none_selector = QRadioButton()
             self.none_selector.toggled.connect(partial(self.select_all_none, "none"))
             self.none_selector_label = QLabel()
-            self.none_selector_label.setText("Unselect all")
+            self.none_selector_label.setText("Tout désélectionner")
             self.none_selector_label.setBuddy(self.none_selector)
             self.layout.addWidget(self.none_selector_label)
             self.layout.addWidget(self.none_selector)
@@ -69,7 +75,7 @@ class SelectSectionsToReport(QDialog):
         # Checkboxes: items
         self.items_check_boxes = {}
         for i, item in enumerate(sections_ids, 1):
-            item_checkbox = QCheckBox(f"section {item}")
+            item_checkbox = QCheckBox(f"tronçon {item}")
             item_checkbox.setChecked(True)
             item_checkbox.clicked.connect(partial(self.update_children_of, item))
             item_checkbox.setStyleSheet("font-weight: bold")
@@ -111,7 +117,7 @@ class SelectSectionsToReport(QDialog):
 
         # Selected
         self.selected = QLabel()
-        selected_text = f"Selected: {self.count_selected()} out of {self.max_selected}"
+        selected_text = f"Sélection: {self.count_selected()} sur {self.max_selected}"
         self.selected.setText(selected_text)
         self.layout.addWidget(self.selected)
 
@@ -121,7 +127,7 @@ class SelectSectionsToReport(QDialog):
 
     def update_selected_count(self):
         self.selected.setText(
-            f"Selected: {self.count_selected()} out of {self.max_selected}"
+            f"Sélection: {self.count_selected()} sur {self.max_selected}"
         )
 
     def count_selected(self) -> int:

@@ -326,19 +326,19 @@
   </expressionfields>
   <attributeactions>
     <defaultAction key="Canvas" value="{00000000-0000-0000-0000-000000000000}"/>
-    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_export_configuration_action([% attribute( $currentfeature, 'id' ) %])" id="{d0ab2fd2-2e43-46fd-91ff-55779d8df0ed}" capture="0" shortTitle="" type="1" name="Exporter la configuration">
+    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_export_configuration_action([% attribute( $currentfeature, 'id' ) %])" id="{d0ab2fd2-2e43-46fd-91ff-55779d8df0ed}" capture="0" shortTitle="" type="1" name="Générer le fichier de configuration">
       <actionScope id="Feature"/>
     </actionsetting>
-    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_import_single_file_action([% attribute( $currentfeature, 'id' ) %])" id="{e96a12d0-26f6-46a6-93f4-7670a6a95cb2}" capture="0" shortTitle="" type="1" name="Importation">
+    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_import_single_file_action([% attribute( $currentfeature, 'id' ) %])" id="{e96a12d0-26f6-46a6-93f4-7670a6a95cb2}" capture="0" shortTitle="" type="1" name="Importer un fichier de données">
       <actionScope id="Feature"/>
     </actionsetting>
-    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_generate_report_action([% attribute( $currentfeature, 'id' ) %])" id="{4340a597-9dae-4de3-b713-4a36d39a65b1}" capture="0" shortTitle="" type="1" name="Creer un rapport">
+    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_export_plan_action([% attribute( $currentfeature, 'id' ) %])" id="{7eba486d-2a8a-4394-8320-4167061db6f5}" capture="0" shortTitle="" type="1" name="Générer le plan de pose">
       <actionScope id="Feature"/>
     </actionsetting>
-    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_export_plan_action([% attribute( $currentfeature, 'id' ) %])" id="{7eba486d-2a8a-4394-8320-4167061db6f5}" capture="0" shortTitle="" type="1" name="Creer un plan">
+    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_generate_chart_action([% attribute( $currentfeature, 'id' ) %])" id="{56878393-0746-4771-b326-ee58dc4c6d96}" capture="0" shortTitle="" type="1" name="Afficher les graphiques">
       <actionScope id="Feature"/>
     </actionsetting>
-    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_generate_chart_action([% attribute( $currentfeature, 'id' ) %])" id="{56878393-0746-4771-b326-ee58dc4c6d96}" capture="0" shortTitle="" type="1" name="Générer les graphiques">
+    <actionsetting icon="" notificationMessage="" isEnabledOnlyWhenEditable="0" action="from qgis.utils import plugins&#xa;plugins['comptages'].do_generate_report_action([% attribute( $currentfeature, 'id' ) %])" id="{4340a597-9dae-4de3-b713-4a36d39a65b1}" capture="0" shortTitle="" type="1" name="Générer les rapports hebdomadaires">
       <actionScope id="Feature"/>
     </actionsetting>
   </attributeactions>
@@ -352,6 +352,7 @@
       <column width="-1" hidden="0" type="field" name="start_service_date"/>
       <column width="-1" hidden="0" type="field" name="end_service_date"/>
       <column width="-1" hidden="0" type="field" name="Periode speciale"/>
+      <column width="-1" hidden="0" type="actions"/>
       <column width="-1" hidden="0" type="field" name="valid"/>
       <column width="-1" hidden="0" type="field" name="dysfunction"/>
       <column width="-1" hidden="0" type="field" name="remarks"/>
@@ -361,7 +362,6 @@
       <column width="-1" hidden="0" type="field" name="id_device"/>
       <column width="-1" hidden="0" type="field" name="id_installation"/>
       <column width="-1" hidden="0" type="field" name="tjm"/>
-      <column width="-1" hidden="0" type="actions"/>
     </columns>
   </attributetableconfig>
   <conditionalstyles>

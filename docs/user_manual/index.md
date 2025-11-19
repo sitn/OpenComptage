@@ -12,13 +12,13 @@ opérations.
 Les outils sont, dans l'ordre :
 
 - Connection DB
-- Créer un nouveau comptage
-- Modifier un comptage
-- Importation données
-- Validation données
+- Création d'un comptage
+- Modification d'un comptage
+- Importation de données
+- Validation de données
 - Filtrage
-- Importation fichiers ICS
 - Rapport annuel
+- Importation fichiers ICS
 - Réglages
 
 Au démarrage, seuls les outils `Connection DB` et `Réglages` sont actifs.
@@ -39,7 +39,7 @@ Cela active aussi les boutons intermédiaires de la barre d'outil
   <figcaption>Barre d'outils du plugin après connection</figcaption>
 </figure>
 
-### Créer un nouveau comptage
+### Création d'un comptage
 Pour créer un nouveau comptage (élément dans la couche `comptage`), l'outil 
 `Créer un nouveau comptage` permet de simplifier les opérations par rapport à 
 l'insertion manuelle dans la table.
@@ -60,7 +60,7 @@ de données.
   <figcaption>Création d'un nouveau comptage</figcaption>
 </figure>
 
-### Modifier comptage
+### Modification d'un comptage
 Après avoir sélectionné un tronçon sur la carte, le 
 bouton <img src="../assets/select_edit.png" width="16" style="background-color:lightgrey;"/>
 `Modifier comptage` permet d'afficher la table d'attributs de la couche 
@@ -71,7 +71,7 @@ Vous pouvez alors éditer les données ou lancer une action.
   <figcaption>Modification d'un comptage</figcaption>
 </figure>
 
-### Importation
+### Importation de données
 Vous pouvez importer des données de deux manières différentes. Soit en 
 spécifiant directement à quel comptage ces données appartiennent, soit en 
 laissant le programme déterminer à quel comptage ils appartiennent sur la base 
@@ -100,13 +100,13 @@ la base de données ou de les écarter.
   <figcaption>Validation des données</figcaption>
 </figure>
 
-### Validation
+### Validation de données
 La fenêtre de validation des données peut être appelée à l'aide du 
 bouton <img src="../assets/validate.png" width="16" style="background-color:lightgrey;"/> 
 `Validation`. Elle montre toutes les données qui ont été importées mais pas 
 encore validées, dans autant d'onglets qu'il y a de tronçons concernés.
 
-### Filtrer
+### Filtrage
 Le bouton <img src="../assets/filter.png" width="16" style="background-color:lightgrey;"/> 
 `Filtrer` de la barre d'outils permet de filtrer les `tronçons` qui 
 sont affichés sur la carte (couche "troncon"). 
@@ -118,7 +118,6 @@ secteur.
   <img src="../assets/filter_dialog.png" width="500" />
   <figcaption>Options de filtrage</figcaption>
 </figure>
-
 
 ### Rapport annuel
 Le bouton <img src="../assets/filled_file.png" width="16" style="background-color:lightgrey;"/>
@@ -133,7 +132,7 @@ contienne au moins 100 jours de données.
   <figcaption>Options rapport annuel</figcaption>
 </figure>
 
-### Importer fichiers ICS
+### Importation fichiers ICS
 Le bouton <img src="../assets/calendar.png" width="16" style="background-color:lightgrey;"/>
 `Importer fichier ICS` permet de charger un fichier calendrier au format ICS 
 dans la base de données. Les événements seront considérés comme des périodes 
@@ -174,18 +173,17 @@ la dernière colonne.
 
 Les actions disponibles sont, dans l'ordre :
 
-- Exporter la configuration
-- Importation
-- Créer un rapport
-- Créer un plan
-- Générer les graphiques
+- Générer le fichier de configuration
+- Importer un fichier de données
+- Générer le plan de pose
+- Afficher les graphiques
+- Générer les rapports hebdomadaires
 - Effacer des données
 
-### Exporter la configuration
-L'action `Exporter la configuration` crée un fichier .CMD dépendant du modèle
-de dispositif défini pour le comptage. Par défaut, le fichier porte le nom de 
-l'`installation` à laquelle le comptage est rattaché.
-Pour les appareils le permettant, cela permet d'automatiser leur configuration.
+### Générer le fichier de configuration
+L'action `Générer le fichier de configuration` crée un fichier .CMD dépendant du modèle
+de dispositif défini pour le comptage. Par défaut, le nom de fichier est "<installation\>.cmd".
+Pour les appareils le supportant, cela permet d'automatiser leur configuration.
 
 Vous pouvez ajouter une partie de configuration fixe pour un modèle spécifique 
 dans le champ `configuration` de la couche `modèle`.
@@ -194,8 +192,8 @@ dans le champ `configuration` de la couche `modèle`.
   <figcaption>Configuration fixe</figcaption>
 </figure>
 
-### Importation
-L'action `Importation` permet de sélectionner un seul fichier et d'associer les 
+### Importer un fichier de données
+L'action `Importer un fichier de données` permet de sélectionner un seul fichier et d'associer les 
 données qu'il contient au comptage. Une fois l'importation terminée, la fenêtre 
 de validation de ces données s'ouvre.
 <figure>
@@ -203,27 +201,27 @@ de validation de ces données s'ouvre.
   <figcaption>Importation de données de comptage</figcaption>
 </figure>
 
-### Créer rapport(s)
-L'action `Créer rapport(s)` permet la génération d'un ou plusieurs rapport(s) 
-hebdomadaire(s) au format XLSX.
-Si le comptage sélectionné concerne un cas spécial, tous les tronçons de ce 
-cas spécial sont proposés dans le formuaire du rapport.
-<figure>
-  <img src="../assets/count_report.png" width="800" />
-  <figcaption>Créer rapport(s) d'un comptage</figcaption>
-</figure>
+### Générer le plan de pose
+L'action `Générer le plan de pose` permet la génération d'un plan de pose au 
+format PDF. Le nom de fichier par défaut est "plan_de_pose_<installation\>.pdf"
 
-### Créer un plan de pose
-L'action `Créer un plan de pose` permet la génération d'un plan de pose au 
-format PDF. Le nom de fichier par défaut est "plan_de_pose_<installation>.pdf"
-
-### Générer les graphiques
-L'action `Générer les graphiques` permet la visualisation des graphiques du 
-comptage. 
+### Afficher les graphiques
+L'action `Afficher les graphiques` permet la visualisation des graphiques du comptage. 
 Ces graphiques sont identiques à ceux montrés lors de l'importation des données.
 <figure>
   <img src="../assets/count_charts.png" width="800" />
   <figcaption>Graphiques d'un comptage</figcaption>
+</figure>
+
+### Générer les rapports hebdomadaires
+L'action `Générer les rapports hebdomadaires` permet la génération d'un ou plusieurs rapport(s) 
+hebdomadaire(s) au format XLSX.
+Si le comptage sélectionné concerne un cas spécial, tous les tronçons de ce 
+cas spécial sont proposés dans le formuaire du rapport.
+Le nom de fichier est défini ainsi: "<tronçon\>_<AAAAMMJJ\>_r.xlsx"
+<figure>
+  <img src="../assets/count_report.png" width="500" />
+  <figcaption>Générer les rapports hebdomadaires</figcaption>
 </figure>
 
 ### Effacer des données
@@ -231,7 +229,7 @@ L'action `Effacer des données` permet de supprimer des données en fonction
 d'une plage de dates et permet aussi de choisir des données `validées` et/ou 
 `à valider`.
 <figure>
-  <img src="../assets/count_delete.png" width="800" />
+  <img src="../assets/count_delete.png" width="400" />
   <figcaption>Effacer des données d'un comptage</figcaption>
 </figure>
 
@@ -239,7 +237,7 @@ d'une plage de dates et permet aussi de choisir des données `validées` et/ou
 ## Utilisation avancée
 ### Ajouter un nouvel automate
 <figure>
-  <img src="../assets/model_relations.png" width="500" />
+  <img src="../assets/model_relations.png" width="800" />
   <figcaption>Relations pour la gestion des automates</figcaption>
 </figure>
 
@@ -262,7 +260,7 @@ dans la base de donnée.
 
 ### Ajouter un nouveau type de capteur
 <figure>
-  <img src="../assets/sensorType_relations.png" width="500" />
+  <img src="../assets/sensorType_relations.png" width="900" />
   <figcaption>Relations pour la gestion des capteurs</figcaption>
 </figure>
 
@@ -274,8 +272,8 @@ faire directement dans la base de donnée.
 
 ### Ajouter une nouvelle classe
 <figure>
-  <img src="../assets/class_category_relations.png" width="500" />
-  <figcaption>Relation entre classe et catégorie</figcaption>
+  <img src="../assets/class_category_relations.png" width="400" />
+  <figcaption>Relation entre classes et catégories</figcaption>
 </figure>
 
 Pour ajouter une nouvelle classe, il faut ajouter un élément dans la table 

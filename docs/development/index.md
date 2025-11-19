@@ -26,7 +26,11 @@ run the script `create_data_model_sql_script.sh`.
 
 <figure>
   <img src="../assets/data_model.png" width="800" />
-  <figcaption>Data model (mario)</figcaption>
+  <figcaption>Data model (Original mario)</figcaption>
+</figure>
+<figure>
+  <img src="../assets/OpenComptages_schema9_9.png" width="800" />
+  <figcaption>Data model V2.2.3</figcaption>
 </figure>
 
 ## Repository structure

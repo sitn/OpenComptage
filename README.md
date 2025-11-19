@@ -58,7 +58,7 @@ You can edit the code and use plugin reloader extension to see the changes
 
 ```powershell
 pip install mkdocs mkdocs-material
-mkdocs serve
+mkdocs serve -o --livereload
 ```
 
 Build the docs:
