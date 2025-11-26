@@ -342,7 +342,7 @@ def _data_day(
         ws.cell(row=row_offset + 1, column=col_offset + i, value=light.get(False, 0))
 
     # Direction 2
-    if len(section.lane_set.all()) == 2:
+    if len(section.lane_set.all()) >= 2:
         row_offset = 36
         col_offset = 2
         for i in range(7):
@@ -354,6 +354,9 @@ def _data_day(
                 direction=2,
                 exclude_trash=True,
             )
+            if df.empty:
+                print(f"{datetime.now()}: _data_day - Direction 2 : Pas de donées pour le {monday + timedelta(days=i)}")
+                break
 
             for row in df.itertuples():
                 ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
@@ -471,7 +474,7 @@ def _data_day_yearly(
         )
 
     # Direction 2
-    if len(section.lane_set.all()) == 2:
+    if len(section.lane_set.all()) >= 2:
         row_offset = 37
         col_offset = 2
         df = statistics.get_time_data_yearly(
@@ -480,34 +483,36 @@ def _data_day_yearly(
             direction=2,
             exclude_trash=True,
         )
+        if df.empty:
+            print(f"{datetime.now()}: _data_day_yearly - Direction 2 : Pas de données pour l'année {year}")
+        else:
+            for i in range(7):
+                day_df = df[df["date"] == i]
+                for row in day_df.itertuples():
+                    ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
 
-        for i in range(7):
-            day_df = df[df["date"] == i]
-            for row in day_df.itertuples():
-                ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
-
-        # Light heavy direction 2
-        row_offset = 63
-        col_offset = 2
-        df = statistics.get_light_numbers_yearly(
-            section,
-            start=datetime(year, 1, 1),
-            end=datetime(year + 1, 1, 1),
-            direction=2,
-            exclude_trash=True,
-        )
-
-        for i in range(7):
-            ws.cell(
-                row=row_offset,
-                column=col_offset + i,
-                value=int(df[df["date"] == i][df["id_category__light"] == True].value),
+            # Light heavy direction 2
+            row_offset = 63
+            col_offset = 2
+            df = statistics.get_light_numbers_yearly(
+                section,
+                start=datetime(year, 1, 1),
+                end=datetime(year + 1, 1, 1),
+                direction=2,
+                exclude_trash=True,
             )
-            ws.cell(
-                row=row_offset + 1,
-                column=col_offset + i,
-                value=int(df[df["date"] == i][df["id_category__light"] == False].value),
-            )
+
+            for i in range(7):
+                ws.cell(
+                    row=row_offset,
+                    column=col_offset + i,
+                    value=int(df[df["date"] == i][df["id_category__light"] == True].value),
+                )
+                ws.cell(
+                    row=row_offset + 1,
+                    column=col_offset + i,
+                    value=int(df[df["date"] == i][df["id_category__light"] == False].value),
+                )
 
 
 def _data_month_yearly(
@@ -675,7 +680,7 @@ def _data_speed(
             ws.cell(row=row_offset + row.Index, column=col_offset, value=row.speed)
 
     # Direction 2
-    if len(section.lane_set.all()) == 2:
+    if len(section.lane_set.all()) >= 2:
         row_offset = 33
         col_offset = 2
         for i, range_ in enumerate(speed_ranges):
@@ -689,6 +694,10 @@ def _data_speed(
                 speed_high=range_[1],
                 exclude_trash=True,
             )
+            if len(res)==0:
+                print(f"{datetime.now()}: _data_speed - Direction 2 : Pas de données pour la semaine débutant le {monday}")
+                break
+
             for row in res:
                 ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
 
@@ -820,7 +829,7 @@ def _data_speed_yearly(
             ws.cell(row=row_offset + row.Index, column=col_offset, value=row.speed)
 
     # Direction 2
-    if len(section.lane_set.all()) == 2:
+    if len(section.lane_set.all()) >= 2:
         row_offset = 33
         col_offset = 2
         for i, range_ in enumerate(speed_ranges):
@@ -834,6 +843,9 @@ def _data_speed_yearly(
                 speed_high=range_[1],
                 exclude_trash=True,
             )
+            if len(res)==0:
+                print(f"{datetime.now()}: _data_speed_yearly - Direction 2 : Pas de donées pour l'année {start}")
+                break
 
             for row in res:
                 ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
@@ -908,7 +920,7 @@ def _data_category(
             ws.cell(row=row_num, column=col_num, value=value)
 
     # Direction 2
-    if len(section.lane_set.all()) == 2:
+    if len(section.lane_set.all()) >= 2:
         row_offset = 33
         col_offset = 2
         for category in categories:
@@ -920,6 +932,9 @@ def _data_category(
                 start=monday,
                 end=monday + timedelta(days=7),
             )
+            if len(res)==0:
+                print(f"{datetime.now()}: _data_category - Direction 2 : Pas de donées pour le {monday}")
+                break
 
             for row in res:
                 row_num = row_offset + row[0]
@@ -967,7 +982,7 @@ def _data_category_yearly(
             ws.cell(row=row_num, column=col_num, value=value)
 
     # Direction 2
-    if len(section.lane_set.all()) == 2:
+    if len(section.lane_set.all()) >= 2:
         row_offset = 33
         col_offset = 2
         for category in categories:
@@ -979,6 +994,9 @@ def _data_category_yearly(
                 start=start,
                 end=end,
             )
+            if len(res)==0:
+                print(f"{datetime.now()}: _data_category_yearly - Direction 2 : Pas de donées pour l'année {start}")
+                break
 
             for row in res:
                 row_num = row_offset + row[0]
@@ -994,7 +1012,7 @@ def _remove_useless_sheets(count: models.Count, workbook: Workbook):
 
     to_remove_from_spreadsheet = []
     if count.id_class and count.id_class.tabs_to_delete:
-        to_remove_from_spreadsheet = count.id_class.tabs_to_delete.copy()
+        to_remove_from_spreadsheet = count.id_class.tabs_to_delete
 
     if _is_aggregate(count):
         to_remove_from_spreadsheet.append("Vit_Hd")
@@ -1004,6 +1022,10 @@ def _remove_useless_sheets(count: models.Count, workbook: Workbook):
     for key in to_remove_from_spreadsheet:
         if key in workbook.sheetnames:
             workbook.remove(workbook[key])
+            # print(f"{datetime.now()}: _remove_useless_sheets: utile OK")
+        else:
+            print(f"{datetime.now()}: _remove_useless_sheets: inutile!")
+
 
 
 def _t_cat(count: models.Count, cat_id):
