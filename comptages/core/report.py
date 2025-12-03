@@ -188,7 +188,7 @@ def _data_count(
 
     ws["B4"] = "Periode de comptage du {} au {}".format(
         monday.strftime("%d/%m/%Y"),
-        (monday + timedelta(days=7)).strftime("%d/%m/%Y"),
+        (monday + timedelta(days=6)).strftime("%d/%m/%Y"),
     )
 
     ws["B5"] = "Comptage {}".format(monday.strftime("%Y"))
