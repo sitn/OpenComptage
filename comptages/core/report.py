@@ -355,11 +355,10 @@ def _data_day(
                 exclude_trash=True,
             )
             if df.empty:
-                print(f"{datetime.now()}: _data_day - Direction 2 : Pas de donées pour le {monday + timedelta(days=i)}")
-                break
-
-            for row in df.itertuples():
-                ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
+                print(f"{datetime.now()}: _data_day - Direction 2 : Pas de données pour le {monday + timedelta(days=i)}")
+            else:
+                for row in df.itertuples():
+                    ws.cell(row=row_offset + row.hour, column=col_offset + i, value=row.thm)
 
         # Light heavy direction 2
         row_offset = 61
@@ -441,7 +440,7 @@ def _data_day_yearly(
 
     if df is None:
         print(
-            f"{datetime.now()}:_data_day_yearly - Pas de données pour cette section:{section}, cette direction:1 et cette année:{year} /!\\/!\\/!\\"
+            f"{datetime.now()}:_data_day_yearly - Pas de données pour la section:{section}, la direction:1 et l'année:{year} /!\\/!\\/!\\"
         )
         return
 
@@ -694,12 +693,11 @@ def _data_speed(
                 speed_high=range_[1],
                 exclude_trash=True,
             )
-            if len(res)==0:
+            if len(res) == 0:
                 print(f"{datetime.now()}: _data_speed - Direction 2 : Pas de données pour la semaine débutant le {monday}")
-                break
-
-            for row in res:
-                ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
+            else:
+                for row in res:
+                    ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
 
         if not _is_aggregate(count):
             # Characteristic speed direction 2
@@ -843,12 +841,11 @@ def _data_speed_yearly(
                 speed_high=range_[1],
                 exclude_trash=True,
             )
-            if len(res)==0:
-                print(f"{datetime.now()}: _data_speed_yearly - Direction 2 : Pas de donées pour l'année {start}")
-                break
-
-            for row in res:
-                ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
+            if len(res) == 0:
+                print(f"{datetime.now()}: _data_speed_yearly - Direction 2 : Pas de données pour l'année {start}")
+            else:
+                for row in res:
+                    ws.cell(row=row_offset + row[0], column=col_offset + i, value=row[1])
 
         if not _is_aggregate(count):
             # Characteristic speed direction 2
@@ -932,18 +929,17 @@ def _data_category(
                 start=monday,
                 end=monday + timedelta(days=7),
             )
-            if len(res)==0:
-                print(f"{datetime.now()}: _data_category - Direction 2 : Pas de donées pour le {monday}")
-                break
+            if len(res) == 0:
+                print(f"{datetime.now()}: _data_category - Direction 2 : Pour la catégorie {category.code}, aucune donnée trouvée pour la semaine débutant le lundi {monday}")
+            else:
+                for row in res:
+                    row_num = row_offset + row[0]
+                    col_num = col_offset + _t_cat(count, category.code)
+                    value = (
+                        ws.cell(row_num, col_num).value + row[1]
+                    )  # Add to previous value because with class convertions multiple categories can converge into a single one
 
-            for row in res:
-                row_num = row_offset + row[0]
-                col_num = col_offset + _t_cat(count, category.code)
-                value = (
-                    ws.cell(row_num, col_num).value + row[1]
-                )  # Add to previous value because with class convertions multiple categories can converge into a single one
-
-                ws.cell(row=row_num, column=col_num, value=value)
+                    ws.cell(row=row_num, column=col_num, value=value)
 
 
 def _data_category_yearly(
@@ -994,18 +990,17 @@ def _data_category_yearly(
                 start=start,
                 end=end,
             )
-            if len(res)==0:
-                print(f"{datetime.now()}: _data_category_yearly - Direction 2 : Pas de donées pour l'année {start}")
-                break
+            if len(res) == 0:
+                print(f"{datetime.now()}: _data_category_yearly - Direction 2 : Pour la catégorie {category.code}, aucune donnée trouvée pour l'année {start}")
+            else:
+                for row in res:
+                    row_num = row_offset + row[0]
+                    col_num = col_offset + _t_cat(count, category.code)
+                    value = (
+                        ws.cell(row_num, col_num).value + row[1]
+                    )  # Add to previous value because with class convertions multiple categories can converge into a single one
 
-            for row in res:
-                row_num = row_offset + row[0]
-                col_num = col_offset + _t_cat(count, category.code)
-                value = (
-                    ws.cell(row_num, col_num).value + row[1]
-                )  # Add to previous value because with class convertions multiple categories can converge into a single one
-
-                ws.cell(row=row_num, column=col_num, value=value)
+                    ws.cell(row=row_num, column=col_num, value=value)
 
 
 def _remove_useless_sheets(count: models.Count, workbook: Workbook):
