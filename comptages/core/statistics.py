@@ -343,6 +343,11 @@ def get_light_numbers_yearly(
     end=None,
     exclude_trash=False,
 ) -> DataFrame:
+
+    tz = timezone("Europe/Zurich")
+    start = tz.localize(start)
+    end = tz.localize(end)
+
     qs = models.CountDetail.objects.filter(
         id_lane__id_section=section,
         id_category__isnull=False,

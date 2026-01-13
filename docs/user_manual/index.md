@@ -236,53 +236,7 @@ d'une plage de dates et permet aussi de choisir des données `validées` et/ou
 </figure>
 
 
-## Utilisation avancée
-### Ajouter un nouvel automate
-<figure>
-  <img src="../assets/model_relations.png" width="500" />
-  <figcaption>Relations pour la gestion des automates</figcaption>
-</figure>
-
-La table `device` (chargée dans la couche `automate` de QGIS), contient la 
-liste des dispositifs disponibles. Chaque dispositif doit avoir une référence à 
-un modèle (défini dans la table `model`) et chaque modèle doit avoir une 
-référence à une marque (définie dans la table `brand`).
-Pour ajouter un nouveau dispositif, il suffit d'ajouter dans QGIS un élément à 
-la table attributaire de la couche `automate` (et éventuellement aux tables 
-`model` et `brand`).
-Un automate correspond donc à un compteur de trafic placé dans le terrain. 
-
-En cas de besoin, il est possible d'associer un dommage à chaque `automate`.
-
-Pour un nouveau modèle d'`automate`, il faut aussi compléter les tables 
-`model_class` et `sensor_type_model` afin que les listes déroulantes de QGIS 
-montrent ces nouveautés. Ces opérations doivent se faire directement 
-dans la base de donnée.
-
-
-### Ajouter un nouveau type de capteur
-<figure>
-  <img src="../assets/sensorType_relations.png" width="500" />
-  <figcaption>Relations pour la gestion des capteurs</figcaption>
-</figure>
-
-Pour ajouter un nouveau type de capteur, il ne suffit pas d'ajouter dans QGIS 
-un élément à la table attributaire de la couche `type_capteur`. Il faut aussi 
-compléter les tables `sensor_type_class` et `sensor_type_model` afin que les 
-listes déroulantes de QGIS montrent ces nouveautés. Ces opérations doivent se 
-faire directement dans la base de donnée.
-
-### Ajouter une nouvelle classe
-<figure>
-  <img src="../assets/class_category_relations.png" width="500" />
-  <figcaption>Relation entre classe et catégorie</figcaption>
-</figure>
-
-Pour ajouter une nouvelle classe, il faut ajouter un élément dans la table 
-`class` et des éléments dans la table `category`, puis il faut les relier dans 
-la table `class_category`. Ces opérations doivent se faire directement dans la 
-base de donnée.
-
+## Utilisation standard
 ### Modification de la circulation
 Chaque `tronçon` (nom de la table `section` dans QGIS) est composé d'une ou 
 plusieurs voies de circulation. A chaque `voie` (nom de la table `lane` dans 
@@ -334,3 +288,52 @@ Si il devient nécessaire de modifier un cas spécial, il faut attribuer d'autre
 `id_installation` aux voies à retirer du cas spécial, si celles-ci sont 
 conservées dans le terrain. Si elles ne sont pas conservées, supprimer ces 
 voies.
+
+
+## Utilisation avancée
+### Ajouter un nouvel automate
+<figure>
+  <img src="../assets/model_relations.png" width="500" />
+  <figcaption>Relations pour la gestion des automates</figcaption>
+</figure>
+
+La table `device` (chargée dans la couche `automate` de QGIS), contient la 
+liste des dispositifs disponibles. Chaque dispositif doit avoir une référence à 
+un modèle (défini dans la table `model`) et chaque modèle doit avoir une 
+référence à une marque (définie dans la table `brand`).
+Pour ajouter un nouveau dispositif, il suffit d'ajouter dans QGIS un élément à 
+la table attributaire de la couche `automate` (et éventuellement aux tables 
+`model` et `brand`).
+Un automate correspond donc à un compteur de trafic placé dans le terrain. 
+
+En cas de besoin, il est possible d'associer un dommage à chaque `automate`.
+
+Pour un nouveau modèle d'`automate`, il faut aussi compléter les tables 
+`model_class` et `sensor_type_model` afin que les listes déroulantes de QGIS 
+montrent ces nouveautés. Ces opérations doivent se faire directement 
+dans la base de donnée.
+
+
+### Ajouter un nouveau type de capteur
+<figure>
+  <img src="../assets/sensorType_relations.png" width="500" />
+  <figcaption>Relations pour la gestion des capteurs</figcaption>
+</figure>
+
+Pour ajouter un nouveau type de capteur, il ne suffit pas d'ajouter dans QGIS 
+un élément à la table attributaire de la couche `type_capteur`. Il faut aussi 
+compléter les tables `sensor_type_class` et `sensor_type_model` afin que les 
+listes déroulantes de QGIS montrent ces nouveautés. Ces opérations doivent se 
+faire directement dans la base de donnée.
+
+### Ajouter une nouvelle classe
+<figure>
+  <img src="../assets/class_category_relations.png" width="500" />
+  <figcaption>Relations entre classe et catégorie</figcaption>
+</figure>
+
+Pour ajouter une nouvelle classe, il faut ajouter un élément dans la table 
+`class` et des éléments dans la table `category`, puis il faut les relier dans 
+la table `class_category`. 
+De plus, pour diminuer la taille des menus déroulants, il est conseillé de compléter la table `model_class`.
+Ces opérations doivent se faire directement dans la base de donnée.

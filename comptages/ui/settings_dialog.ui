@@ -6,124 +6,345 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>471</width>
-    <height>581</height>
+    <width>490</width>
+    <height>595</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Réglages</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Host</string>
+    <widget class="QGroupBox" name="groupBox_1">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>245</height>
+      </size>
      </property>
+     <property name="title">
+      <string>Options de connexion à la base de données</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <widget class="QLabel" name="l01_DB_serverName">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>21</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Nom du serveur</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="db_host">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>37</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+     <widget class="QLabel" name="l02_DB_databasename">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>65</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Nom de la base de données</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="db_name">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>81</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="l03_DB_portnumber">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>110</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>N° de port</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="db_port">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>126</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+     <widget class="QLabel" name="l04_DB_username">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>155</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Nom d'utilisateur</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="db_username">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>171</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+     <widget class="QLabel" name="l05_DB_password">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>200</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Mot de passe</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="db_password">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>216</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+     <zorder>l01_DB_serverName</zorder>
+     <zorder>db_host</zorder>
+     <zorder>l02_DB_databasename</zorder>
+     <zorder>db_name</zorder>
+     <zorder>l03_DB_portnumber</zorder>
+     <zorder>db_port</zorder>
+     <zorder>l04_DB_username</zorder>
+     <zorder>db_username</zorder>
+     <zorder>l05_DB_password</zorder>
+     <zorder>db_password</zorder>
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="db_host"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Nom DB</string>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>44</height>
+      </size>
      </property>
+     <property name="title">
+      <string>Bloc &quot;Extra&quot;</string>
+     </property>
+     <widget class="QCheckBox" name="extra_layers">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>21</y>
+        <width>480</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Afficher le bloc &quot;Extra&quot; avec les couches supplémentaires</string>
+      </property>
+     </widget>
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="db_name"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Porte</string>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>245</height>
+      </size>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="db_port"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Nom d'utilisateur</string>
+     <property name="title">
+      <string>Répertoires par défaut</string>
      </property>
+     <widget class="QLabel" name="l11_config_dir">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>21</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Fichiers de configuration</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="config_export_directory">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>37</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="l12_data_dir">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>65</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Données de comptage</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="data_import_directory">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>81</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="l13_picture_dir">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>110</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Photos pour plans de pose</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="picture_directory">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>126</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="l14_plan_dir">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>155</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Plans de pose</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="plan_export_directory">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>171</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="l15_report_dir">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>200</y>
+        <width>450</width>
+        <height>13</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Rapports</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="report_export_directory">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>216</y>
+        <width>450</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <zorder>l11_config_dir</zorder>
+     <zorder>config_export_directory</zorder>
+     <zorder>l12_data_dir</zorder>
+     <zorder>data_import_directory</zorder>
+     <zorder>l13_picture_dir</zorder>
+     <zorder>picture_directory</zorder>
+     <zorder>l14_plan_dir</zorder>
+     <zorder>plan_export_directory</zorder>
+     <zorder>l15_report_dir</zorder>
+     <zorder>report_export_directory</zorder>
     </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="db_username"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Mot de passe</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="db_password">
-     <property name="echoMode">
-      <enum>QLineEdit::Password</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="extra_layers">
-     <property name="text">
-      <string>montrer les couches supplémentaires</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Répertoire des fichiers de configuration par défaut</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="config_export_directory"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>Répertoire des plans de pose par défaut</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="plan_export_directory"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Répertoire des données par défaut</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="data_import_directory"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Répertoire des photos</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="picture_directory"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>Répertoire des rapports par défaut</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="report_export_directory"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -136,7 +357,24 @@
     </widget>
    </item>
   </layout>
+  <zorder>groupBox_1</zorder>
+  <zorder>groupBox_2</zorder>
+  <zorder>groupBox_3</zorder>
+  <zorder>buttonBox</zorder>
  </widget>
+ <tabstops>
+  <tabstop>db_host</tabstop>
+  <tabstop>db_name</tabstop>
+  <tabstop>db_port</tabstop>
+  <tabstop>db_username</tabstop>
+  <tabstop>db_password</tabstop>
+  <tabstop>extra_layers</tabstop>
+  <tabstop>config_export_directory</tabstop>
+  <tabstop>data_import_directory</tabstop>
+  <tabstop>picture_directory</tabstop>
+  <tabstop>plan_export_directory</tabstop>
+  <tabstop>report_export_directory</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

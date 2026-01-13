@@ -34,11 +34,11 @@ class IcsImporter:
 
             summary = ""
             if "SUMMARY" in event:
-                summary = str(event["SUMMARY"])
+                summary = str(event["SUMMARY"]).replace("'", "''")
 
             location = ""
             if "LOCATION" in event:
-                location = str(event["LOCATION"])
+                location = str(event["LOCATION"]).replace("'", "''")
 
             self.layers.write_special_period(
                 event["DTSTART"].dt, event["DTEND"].dt, summary, location, ""

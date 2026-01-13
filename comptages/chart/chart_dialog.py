@@ -553,7 +553,8 @@ class ChartCat(Chart):
 
         fig.update_traces(hoverinfo="label+percent+name+value")
         fig.update_layout(title_text="Véhicules groupés par catégorie")
-
+        # fig.show() # affiche le chart dans un navigateur internet; OK aussi avec plotly 6.4.0
+        # print("Debug_GL: ChartCat - fin du camembert")
         return plotly.offline.plot(fig, output_type="div")
 
 
